@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CloudDesk — Connection Dashboard</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --bg2: #161b22;
+      --bg3: #1c2128;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --green: #3fb950;
+      --yellow: #d29922;
+      --red: #f85149;
+      --blue: #58a6ff;
+      --purple: #bc8cff;
+      --orange: #ffa657;
+      --teal: #39d353;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ─────────────────────────────────────── */
+    header {
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    header h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    header h1 .logo { font-size: 1.5rem; }
+    .header-meta {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: right;
+    }
+    .header-meta strong { color: var(--text); }
+
+    /* ── LAYOUT ─────────────────────────────────────── */
+    .app-layout {
+      display: flex;
+      height: calc(100vh - 65px);
+    }
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      padding: 18px 10px;
+      overflow-y: auto;
+      position: sticky;
+      top: 65px;
+      height: calc(100vh - 65px);
+    }
+    .nav-section-label {
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 10px;
+      margin: 22px 0 6px;
+    }
+    .nav-section-label:first-child { margin-top: 4px; }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+      margin-bottom: 2px;
+      border: 1px solid transparent;
+      width: 100%;
+      background: none;
+    }
+    .nav-item:hover { background: var(--bg3); color: var(--text); }
+    .nav-item.active {
+      background: rgba(88,166,255,0.1);
+      color: var(--blue);
+      border-color: rgba(88,166,255,0.2);
+    }
+    .nav-icon { font-size: 1rem; flex-shrink: 0; }
+    main {
+      flex: 1;
+      overflow-y: auto;
+      min-width: 0;
+    }
+    /* ── PAGES ──────────────────────────────────────── */
+    .page { display: none; }
+    .page.active { display: block; }
+    .page-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+    /* ── PLACEHOLDER PAGE ───────────────────────────── */
+    .placeholder-page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      text-align: center;
+      gap: 14px;
+      padding: 40px 24px;
+    }
+    .placeholder-icon { font-size: 3.5rem; }
+    .placeholder-title { font-size: 1.3rem; font-weight: 700; }
+    .placeholder-desc { font-size: 0.88rem; color: var(--muted); max-width: 360px; line-height: 1.7; }
+
+    /* ── NOTION RENDERER ─────────────────────────────────── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .notion-page-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .notion-page-meta {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .notion-page-meta a { color: var(--blue); text-decoration: none; }
+    .notion-page-meta a:hover { text-decoration: underline; }
+    .n-h1 { font-size: 1.35rem; font-weight: 700; margin: 24px 0 8px; color: var(--text); }
+    .n-h2 { font-size: 1.1rem;  font-weight: 700; margin: 20px 0 6px; color: var(--text); }
+    .n-h3 { font-size: 0.95rem; font-weight: 600; margin: 16px 0 5px; color: var(--text); }
+    .n-p  { font-size: 0.88rem; line-height: 1.75; margin: 4px 0 10px; color: var(--text); }
+    .n-p:empty::after { content: '\00a0'; }
+    .n-ul, .n-ol { padding-left: 22px; margin: 4px 0 10px; }
+    .n-ul li, .n-ol li { font-size: 0.88rem; line-height: 1.75; color: var(--text); margin-bottom: 3px; }
+    .n-todo {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 0.88rem; line-height: 1.6; margin: 3px 0;
+      color: var(--text);
+    }
+    .n-todo input[type=checkbox] { margin-top: 3px; flex-shrink: 0; accent-color: var(--blue); }
+    .n-todo.checked span { text-decoration: line-through; color: var(--muted); }
+    .n-quote {
+      border-left: 3px solid var(--blue);
+      padding: 8px 14px;
+      margin: 10px 0;
+      background: rgba(88,166,255,0.05);
+      border-radius: 0 6px 6px 0;
+      font-size: 0.88rem;
+      line-height: 1.7;
+      color: var(--text);
+    }
+    .n-callout {
+      display: flex; gap: 10px;
+      padding: 12px 14px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin: 10px 0;
+      font-size: 0.88rem;
+      line-height: 1.7;
+      color: var(--text);
+    }
+    .n-callout-icon { flex-shrink: 0; font-size: 1.1rem; }
+    .n-divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+    .n-code {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      overflow-x: auto;
+      margin: 10px 0;
+      color: var(--orange);
+    }
+    .n-img { max-width: 100%; border-radius: 8px; margin: 10px 0; border: 1px solid var(--border); }
+    /* Inline rich-text annotations */
+    .n-bold   { font-weight: 700; }
+    .n-italic { font-style: italic; }
+    .n-strike { text-decoration: line-through; }
+    .n-code-inline {
+      background: rgba(88,166,255,0.1);
+      border: 1px solid rgba(88,166,255,0.2);
+      color: var(--blue);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.85em;
+    }
+    .n-link { color: var(--blue); text-decoration: none; }
+    .n-link:hover { text-decoration: underline; }
+    .section-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+      margin-top: 36px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-title:first-of-type { margin-top: 0; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 16px;
+    }
+    .grid-wide {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+      gap: 16px;
+    }
+
+    /* ── CARD ───────────────────────────────────────── */
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      transition: border-color 0.2s;
+    }
+    .card:hover { border-color: #484f58; }
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .card-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .card-title { font-size: 0.95rem; font-weight: 600; }
+    .card-subtitle { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+    /* ── STATUS BADGE ───────────────────────────────── */
+    .badge {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .badge-green  { background: rgba(63,185,80,0.15);  color: var(--green);  border: 1px solid rgba(63,185,80,0.3); }
+    .badge-yellow { background: rgba(210,153,34,0.15); color: var(--yellow); border: 1px solid rgba(210,153,34,0.3); }
+    .badge-red    { background: rgba(248,81,73,0.15);  color: var(--red);    border: 1px solid rgba(248,81,73,0.3); }
+    .badge-blue   { background: rgba(88,166,255,0.12); color: var(--blue);   border: 1px solid rgba(88,166,255,0.3); }
+    .badge-purple { background: rgba(188,140,255,0.12);color: var(--purple); border: 1px solid rgba(188,140,255,0.3);}
+
+    /* ── STAT GRID ──────────────────────────────────── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .stat {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .stat-value {
+      font-size: 1.25rem;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--text);
+    }
+    .stat-label {
+      font-size: 0.65rem;
+      color: var(--muted);
+      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── LIST ITEMS ─────────────────────────────────── */
+    .item-list { display: flex; flex-direction: column; gap: 6px; }
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.8rem;
+    }
+    .item .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .item-name { font-weight: 500; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .item-meta { font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
+    .item-role { font-size: 0.65rem; padding: 1px 6px; border-radius: 4px; background: var(--bg2); border: 1px solid var(--border); color: var(--muted); }
+
+    /* ── CALENDAR EVENT ─────────────────────────────── */
+    .event {
+      display: flex;
+      gap: 10px;
+      padding: 8px 10px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 6px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    a.event:hover {
+      border-color: rgba(88,166,255,0.35);
+      background: rgba(88,166,255,0.05);
+    }
+    .event-date {
+      width: 36px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .event-day { font-size: 1rem; font-weight: 700; line-height: 1; color: var(--blue); }
+    .event-mon { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; }
+    .event-title { font-size: 0.8rem; font-weight: 500; }
+    .event-time  { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+
+    /* ── DIVIDER ────────────────────────────────────── */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+
+    /* ── LABEL PILLS ────────────────────────────────── */
+    .pills { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+    .pill {
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    /* ── SITE GRID ──────────────────────────────────── */
+    .site-grid { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+    .site-tag {
+      font-size: 0.65rem;
+      padding: 2px 7px;
+      border-radius: 5px;
+      background: rgba(88,166,255,0.08);
+      border: 1px solid rgba(88,166,255,0.2);
+      color: var(--blue);
+    }
+
+    /* ── INFO ROW ───────────────────────────────────── */
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-row .label { color: var(--muted); }
+    .info-row .value { font-weight: 500; text-align: right; }
+
+    /* ── PROGRESS BAR ───────────────────────────────── */
+    .progress-bar {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--blue);
+    }
+
+    /* ── EMAIL ITEMS ────────────────────────────────── */
+    a.email-item {
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    a.email-item:hover { border-color: var(--blue); background: rgba(88,166,255,0.04); }
+
+    /* ── DRAFT BUTTONS ──────────────────────────────── */
+    .draft-btn {
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      transition: opacity 0.15s;
+    }
+    .draft-btn:hover { opacity: 0.8; }
+    .draft-btn-open {
+      background: rgba(88,166,255,0.1);
+      border: 1px solid rgba(88,166,255,0.3);
+      color: var(--blue);
+    }
+    .draft-btn-delete {
+      background: rgba(248,81,73,0.1);
+      border: 1px solid rgba(248,81,73,0.3);
+      color: var(--red);
+    }
+    .draft-item {
+      transition: opacity 0.3s, max-height 0.4s, margin 0.3s, padding 0.3s;
+      overflow: hidden;
+      max-height: 200px;
+    }
+    .draft-item.removing {
+      opacity: 0;
+      max-height: 0;
+      margin: 0;
+      padding: 0;
+      border: none;
+    }
+
+    /* ── TIMESTAMP ──────────────────────────────────── */
+    .last-updated {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 40px;
+      padding-bottom: 32px;
+    }
+
+    /* ── NOTION SECTIONS ────────────────────────────── */
+    .notion-section {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .notion-section:hover { border-color: #484f58; background: rgba(255,255,255,0.03); }
+    .notion-section-header {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 6px;
+    }
+    .notion-icon { font-size: 1rem; flex-shrink: 0; }
+    .notion-title { font-size: 0.82rem; font-weight: 600; flex: 1; }
+    .notion-type {
+      font-size: 0.6rem;
+      color: var(--muted);
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .notion-desc { font-size: 0.72rem; color: var(--muted); line-height: 1.4; }
+    .notion-sub  { font-size: 0.67rem; color: #6e7681; margin-top: 4px; }
+
+    /* ── DESIGN THUMBNAILS ───────────────────────────── */
+    .design-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 4px; }
+    .design-thumb {
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--bg3);
+      aspect-ratio: 16/9;
+    }
+    .design-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .design-thumb .no-thumb { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+
+    /* ── RESPONSIVE ─────────────────────────────────── */
+    @media (max-width: 820px) {
+      .sidebar { width: 52px; padding: 14px 6px; }
+      .nav-item span:not(.nav-icon) { display: none; }
+      .nav-section-label { display: none; }
+    }
+    @media (max-width: 640px) {
+      header { padding: 16px; flex-direction: column; gap: 8px; text-align: center; }
+      .page-inner { padding: 16px 12px; }
+      .grid, .grid-wide { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1><span class="logo">☁️</span> CloudDesk Dashboard</h1>
+  <div class="header-meta">
+    <strong>Alex van Winkel</strong> · alexicoo@gmail.com<br>
+    Live data · April 1, 2026
+  </div>
+</header>
+
+<div class="app-layout">
+
+  <!-- ═══ SIDEBAR NAV ══════════════════════════════════════════ -->
+  <nav class="sidebar">
+    <div class="nav-section-label">Menu</div>
+    <button class="nav-item active" id="nav-overview" onclick="showPage('overview')">
+      <span class="nav-icon">📊</span><span>Overview</span>
+    </button>
+    <button class="nav-item" id="nav-projects" onclick="showPage('projects')">
+      <span class="nav-icon">📁</span><span>Projects</span>
+    </button>
+    <button class="nav-item" id="nav-youtube" onclick="showPage('youtube')">
+      <span class="nav-icon">▶️</span><span>YouTube Channel</span>
+    </button>
+    <button class="nav-item" id="nav-notes" onclick="showPage('notes')">
+      <span class="nav-icon">📝</span><span>Notes</span>
+    </button>
+    <button class="nav-item" id="nav-school" onclick="showPage('school')">
+      <span class="nav-icon">🎓</span><span>School</span>
+    </button>
+    <button class="nav-item" id="nav-thailand" onclick="showPage('thailand')">
+      <span class="nav-icon">🇹🇭</span><span>Thailand</span>
+    </button>
+    <button class="nav-item" id="nav-important" onclick="showPage('important')">
+      <span class="nav-icon">⭐</span><span>Important information</span>
+    </button>
+  </nav>
+
+  <main>
+
+  <!-- ═══ PAGE: OVERVIEW ════════════════════════════════════════ -->
+  <div id="page-overview" class="page active">
+  <div class="page-inner">
+
+  <!-- ═══ GOOGLE SUITE ═══════════════════════════════════════ -->
+  <div class="section-title">Google Suite</div>
+  <div class="grid">
+
+    <!-- GMAIL -->
+    <div class="card" style="grid-column: span 2;">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon" style="background: rgba(234,67,53,0.15);">📧</div>
+          <div>
+            <div class="card-title">Gmail</div>
+            <div class="card-subtitle">alexicoo@gmail.com</div>
+          </div>
+        </div>
+        <span class="badge badge-green">● CONNECTED</span>
+      </div>
+      <div class="stats" style="margin-bottom:18px;">
+        <div class="stat"><div class="stat-value">73,494</div><div class="stat-label">Messages</div></div>
+        <div class="stat"><div class="stat-value">56,456</div><div class="stat-label">Threads</div></div>
+        <div class="stat"><div class="stat-value">201</div><div class="stat-label">In Inbox</div></div>
+        <div class="stat"><div class="stat-value">43</div><div class="stat-label">User Labels</div></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+
+        <!-- INBOX -->
+        <div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;">📥 Recent Inbox</div>
+          <div class="item-list">
+            <a class="item email-item" href="https://mail.google.com/mail/u/0/#inbox/19d49f96f0c56592" target="_blank">
+              <div class="dot" style="background:var(--blue)"></div>
+              <div style="flex:1;min-width:0;">
+                <div class="item-name">Get ready for the first human moon mission since 1972</div>
+                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">CNN Science – Countdown</div>
+              </div>
+              <span class="item-meta">16:56</span>
+              <span class="pill" style="background:rgba(88,166,255,0.08);color:var(--blue);border-color:rgba(88,166,255,0.2)">Updates</span>
+            </a>
+            <a class="item email-item" href="https://mail.google.com/mail/u/0/#inbox/19d49b6cf5cf93a9" target="_blank">
+              <div class="dot" style="background:var(--green)"></div>
+              <div style="flex:1;min-width:0;">
+                <div class="item-name">Re: 🌏 Southeast Asia Retirement Guide</div>
+                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">carline charles</div>
+              </div>
+              <span class="item-meta">15:43</span>
+              <span class="pill" style="background:rgba(63,185,80,0.08);color:var(--green);border-color:rgba(63,185,80,0.2)">Personal</span>
+            </a>
+            <a class="item email-item" href="https://mail.google.com/mail/u/0/#inbox/19d4999578676d10" target="_blank">
+              <div class="dot" style="background:var(--orange)"></div>
+              <div style="flex:1;min-width:0;">
+                <div class="item-name">Catch the Beat, Catch the Deals 🎶</div>
+                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">SHEIN</div>
+              </div>
+              <span class="item-meta">15:11</span>
+              <span class="pill" style="background:rgba(255,166,87,0.08);color:var(--orange);border-color:rgba(255,166,87,0.2)">Promo</span>
+            </a>
+            <a class="item email-item" href="https://mail.google.com/mail/u/0/#inbox/19d489abfd33763b" target="_blank">
+              <div class="dot" style="background:var(--purple)"></div>
+              <div style="flex:1;min-width:0;">
+                <div class="item-name">Claude Code leaks 🤖, inside DeepMind 🧠</div>
+                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">TLDR</div>
+              </div>
+              <span class="item-meta">10:33</span>
+              <span class="pill" style="background:rgba(88,166,255,0.08);color:var(--blue);border-color:rgba(88,166,255,0.2)">Updates</span>
+            </a>
+            <a class="item email-item" href="https://mail.google.com/mail/u/0/#inbox/19d48939f21f471f" target="_blank">
+              <div class="dot" style="background:var(--yellow)"></div>
+              <div style="flex:1;min-width:0;">
+                <div class="item-name">Your Bangkok flight is now $1234.</div>
+                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">Capital One</div>
+              </div>
+              <span class="item-meta">10:25</span>
+              <span class="pill" style="background:rgba(88,166,255,0.08);color:var(--blue);border-color:rgba(88,166,255,0.2)">Updates</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- DRAFTS -->
+        <div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;">✏️ Drafts</div>
+          <div class="item-list" id="drafts-list">
+            <div class="item draft-item" id="draft-r8344124667941486276" style="align-items:flex-start;flex-direction:column;gap:6px;">
+              <div style="display:flex;align-items:center;gap:8px;width:100%;">
+                <div class="dot" style="background:var(--yellow);flex-shrink:0"></div>
+                <div style="flex:1;min-width:0;">
+                  <div class="item-name">RSD</div>
+                  <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">To: carline charles · Mar 13 · 1.4 KB</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:6px;padding-left:16px;width:100%;">
+                <a href="https://mail.google.com/mail/u/0/#drafts/19ce80404a2cd2c0" target="_blank" class="draft-btn draft-btn-open">Open</a>
+                <button class="draft-btn draft-btn-delete" onclick="deleteDraft('r8344124667941486276','19ce80404a2cd2c0',this)">🗑 Delete</button>
+              </div>
+            </div>
+            <div class="item draft-item" id="draft-r-5135755381888562226" style="align-items:flex-start;flex-direction:column;gap:6px;">
+              <div style="display:flex;align-items:center;gap:8px;width:100%;">
+                <div class="dot" style="background:var(--yellow);flex-shrink:0"></div>
+                <div style="flex:1;min-width:0;">
+                  <div class="item-name">(no subject)</div>
+                  <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">Mar 3 · 2.3 KB</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:6px;padding-left:16px;width:100%;">
+                <a href="https://mail.google.com/mail/u/0/#drafts/19cb407a0aa54775" target="_blank" class="draft-btn draft-btn-open">Open</a>
+                <button class="draft-btn draft-btn-delete" onclick="deleteDraft('r-5135755381888562226','19cb407a0aa54775',this)">🗑 Delete</button>
+              </div>
+            </div>
+            <div class="item draft-item" id="draft-r-7195300724441537743" style="align-items:flex-start;flex-direction:column;gap:6px;">
+              <div style="display:flex;align-items:center;gap:8px;width:100%;">
+                <div class="dot" style="background:var(--orange);flex-shrink:0"></div>
+                <div style="flex:1;min-width:0;">
+                  <div class="item-name">Theo in the…</div>
+                  <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">To: self · Feb 25 · <span style="color:var(--orange)">9.1 MB</span></div>
+                </div>
+              </div>
+              <div style="display:flex;gap:6px;padding-left:16px;width:100%;">
+                <a href="https://mail.google.com/mail/u/0/#drafts/19c9653d5a1c7997" target="_blank" class="draft-btn draft-btn-open">Open</a>
+                <button class="draft-btn draft-btn-delete" onclick="deleteDraft('r-7195300724441537743','19c9653d5a1c7997',this)">🗑 Delete</button>
+              </div>
+            </div>
+          </div>
+          <div id="drafts-empty" style="display:none;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;font-size:0.78rem;color:var(--muted);text-align:center;">No drafts</div>
+        </div>
+
+      </div>
+
+      <!-- BIGGEST ATTACHMENTS -->
+      <div style="margin-top:16px;">
+        <div style="font-size:0.72rem;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;">📎 Biggest Attachments</div>
+        <div class="item-list">
+          <a class="item email-item" href="https://mail.google.com/mail/u/0/#inbox/19d43bf6572b29ca" target="_blank">
+            <div class="dot" style="background:var(--red)"></div>
+            <div style="flex:1;min-width:0;">
+              <div class="item-name">Fw: Video from Senior vs. Faculty Basketball Game</div>
+              <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">avanwinkel@molloyhs.org · Mar 31</div>
+            </div>
+            <span class="pill" style="background:rgba(248,81,73,0.08);color:var(--red);border-color:rgba(248,81,73,0.2)">19.7 MB</span>
+          </a>
+          <a class="item email-item" href="https://mail.google.com/mail/u/0/#sent/19cbf7c1d65581e3" target="_blank">
+            <div class="dot" style="background:var(--orange)"></div>
+            <div style="flex:1;min-width:0;">
+              <div class="item-name">Group picture</div>
+              <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">To: avanwinkel@molloyhs.org · Mar 5</div>
+            </div>
+            <span class="pill" style="background:rgba(255,166,87,0.08);color:var(--orange);border-color:rgba(255,166,87,0.2)">17.1 MB</span>
+          </a>
+          <a class="item email-item" href="https://mail.google.com/mail/u/0/#inbox/19d46142215bd6a3" target="_blank">
+            <div class="dot" style="background:var(--yellow)"></div>
+            <div style="flex:1;min-width:0;">
+              <div class="item-name">Details for the NJx Hackathon on April 11th and 12th</div>
+              <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">Christopher Gittings · Mar 31</div>
+            </div>
+            <span class="pill" style="background:rgba(210,153,34,0.08);color:var(--yellow);border-color:rgba(210,153,34,0.2)">16.8 MB</span>
+          </a>
+          <a class="item email-item" href="https://mail.google.com/mail/u/0/#inbox/19d08f7ff5386f30" target="_blank">
+            <div class="dot" style="background:var(--blue)"></div>
+            <div style="flex:1;min-width:0;">
+              <div class="item-name">Volunteer Newsletter - March 2026</div>
+              <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">GKTW Volunteer Services · Mar 20</div>
+            </div>
+            <span class="pill" style="background:rgba(88,166,255,0.08);color:var(--blue);border-color:rgba(88,166,255,0.2)">9.1 MB</span>
+          </a>
+          <a class="item email-item" href="https://mail.google.com/mail/u/0/#sent/19d1255f3d0e27f9" target="_blank">
+            <div class="dot" style="background:var(--purple)"></div>
+            <div style="flex:1;min-width:0;">
+              <div class="item-name">Teaching AP Cybersecurity next school year</div>
+              <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">To: Kellep Charles · Mar 21</div>
+            </div>
+            <span class="pill" style="background:rgba(188,140,255,0.08);color:var(--purple);border-color:rgba(188,140,255,0.2)">8.3 MB</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- GOOGLE CALENDAR -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon" style="background: rgba(66,133,244,0.15);">📅</div>
+          <div>
+            <div class="card-title">Google Calendar</div>
+            <div class="card-subtitle">alexicoo@gmail.com · America/New_York</div>
+          </div>
+        </div>
+        <span class="badge badge-green">● CONNECTED</span>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-value">13</div>
+          <div class="stat-label">Calendars</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">8</div>
+          <div class="stat-label">Upcoming</div>
+        </div>
+      </div>
+      <div style="font-size:0.72rem;color:var(--muted);margin-bottom:8px;">Next 2 weeks</div>
+      <a class="event" href="https://www.google.com/calendar/event?eid=NGxmdm5wMG4wZW84OG1ycHZtaHA4bmh1bmMgYWxleGljb29AbQ&ctz=America/New_York" target="_blank">
+        <div class="event-date"><div class="event-day">2</div><div class="event-mon">Apr</div></div>
+        <div><div class="event-title">Check out: FRUIT TREE on Grand Ave.</div><div class="event-time">12:00 – 13:00 · Baldwin, NY</div></div>
+      </a>
+      <a class="event" href="https://www.google.com/calendar/event?eid=Y3BoajRvcHA2b28zOGJiNTc0cWphYjlrNjRybWFiYjI2bGg2NmI5aTYxZ2phZTltNnBpbThvaG5jZyBhbGV4aWNvb0Bt&ctz=America/New_York" target="_blank">
+        <div class="event-date"><div class="event-day">4</div><div class="event-mon">Apr</div></div>
+        <div><div class="event-title">Cancel Video creation tool</div><div class="event-time">12:00 – 13:00</div></div>
+      </a>
+      <a class="event" href="https://www.google.com/calendar/event?eid=NmZwYTRvbGd1bHYxNjNucmw5OWY2ZWtzOHAgYWxleGljb29AbQ&ctz=America/New_York" target="_blank">
+        <div class="event-date"><div class="event-day">4</div><div class="event-mon">Apr</div></div>
+        <div><div class="event-title">Cancel Coursera (alexicoo.nl)</div><div class="event-time">13:00 – 13:15</div></div>
+      </a>
+      <a class="event" href="https://www.google.com/calendar/event?eid=Y2txajRvcjI3NHE2OGJiMTY0b2o2YjlrNmdvbTZiOW9jaGhqZWJiMzZzcWo0Y2o1YzhxbTRjMzY3NF8yMDI2MDQwNFQxNTAwMDBaIGFsZXhpY29vQG0&ctz=America/New_York" target="_blank">
+        <div class="event-date"><div class="event-day">5</div><div class="event-mon">Apr</div></div>
+        <div><div class="event-title">SKYPE met moeder</div><div class="event-time">11:00 – 12:00 · recurring</div></div>
+      </a>
+      <a class="event" href="https://www.google.com/calendar/event?eid=M2ZxbTZwNTcyN2wwNDhtbmZhZGhrMDI4b2UgYWxleGljb29AbQ&ctz=America/New_York" target="_blank">
+        <div class="event-date"><div class="event-day">6</div><div class="event-mon">Apr</div></div>
+        <div><div class="event-title">Perillo – Tune-up</div><div class="event-time">12:00 – 15:00</div></div>
+      </a>
+      <a class="event" href="https://www.google.com/calendar/event?eid=Nm9wM2FwOWs3NHJtY2I5bzZzcmo0YjlrNjBxNjRiYjI2OHFtY2I5azcwcW00Y3IzNjFoNmFkajVjZyBhbGV4aWNvb0Bt&ctz=America/New_York" target="_blank">
+        <div class="event-date"><div class="event-day">6</div><div class="event-mon">Apr</div></div>
+        <div><div class="event-title">Promo for elective classes</div><div class="event-time">16:00 – 17:00</div></div>
+      </a>
+      <div style="font-size:0.72rem;color:var(--muted);margin-top:10px;margin-bottom:5px;">Calendars</div>
+      <div class="pills">
+        <span class="pill" style="color:var(--blue)">alexicoo@gmail.com ★</span>
+        <span class="pill">CodeWizards</span>
+        <span class="pill">Best Family</span>
+        <span class="pill">Personal</span>
+        <span class="pill">Gezin</span>
+        <span class="pill">Family</span>
+        <span class="pill">AP CSP 2024-2025</span>
+        <span class="pill">School 23 vakanties</span>
+        <span class="pill">OpenClaw managed</span>
+        <span class="pill">Feestdagen NL</span>
+        <span class="pill">Twitch dates</span>
+        <span class="pill">LPN prep</span>
+        <span class="pill">phoenixhealer2000</span>
+      </div>
+    </div>
+
+    <!-- GOOGLE DRIVE -->
+    <div class="card" style="grid-column: span 2;">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon" style="background: rgba(251,188,4,0.12);">🗂️</div>
+          <div>
+            <div class="card-title">Google Drive</div>
+            <div class="card-subtitle">alexicoo@gmail.com</div>
+          </div>
+        </div>
+        <span class="badge badge-green">● CONNECTED</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+
+        <!-- RECENTLY MODIFIED -->
+        <div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;">🕐 Recently Modified</div>
+          <div class="item-list">
+            <a class="item email-item" href="https://docs.google.com/document/d/1_07M-mnjd8O81q653586ofD8m0IeDqy-PHGGAqjgVXQ/edit" target="_blank">
+              <div class="dot" style="background:var(--blue)"></div>
+              <div style="flex:1;min-width:0;">
+                <div class="item-name">BLENDER MATERIALS QUICK GUIDE</div>
+                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">avanwinkel@molloyhs.org</div>
+              </div>
+              <span class="item-meta">Mar 22</span>
+              <span class="pill" style="background:rgba(88,166,255,0.08);color:var(--blue);border-color:rgba(88,166,255,0.2)">94 KB</span>
+            </a>
+            <a class="item email-item" href="https://docs.google.com/document/d/1hgX95pHHPY_VTR9K86Wk3vIqx8HpGDMmtAQeAUVU_d8/edit" target="_blank">
+              <div class="dot" style="background:var(--purple)"></div>
+              <div style="flex:1;min-width:0;">
+                <div class="item-name">Create Task Analysis 2025</div>
+                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">mvlach@dixonusd.org (shared)</div>
+              </div>
+              <span class="item-meta">Mar 18</span>
+              <span class="pill" style="background:rgba(88,166,255,0.08);color:var(--blue);border-color:rgba(88,166,255,0.2)">89 KB</span>
+            </a>
+            <a class="item email-item" href="https://docs.google.com/document/d/1Tk7H4IO64dGCdP54ZS69ZQWMB80Pc6IbaxgGYDyIM10/edit" target="_blank">
+              <div class="dot" style="background:var(--green)"></div>
+              <div style="flex:1;min-width:0;">
+                <div class="item-name">Exit Slip 4</div>
+                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">dbarbery@molloyhs.org (shared)</div>
+              </div>
+              <span class="item-meta">Mar 13</span>
+              <span class="pill" style="background:rgba(88,166,255,0.08);color:var(--muted);border-color:var(--border)">1 KB</span>
+            </a>
+            <a class="item email-item" href="https://docs.google.com/document/d/1BRiJRic9mbayH3uGyoUPbnagy1SBRkkUJAVkRHE1jHA/edit" target="_blank">
+              <div class="dot" style="background:var(--orange)"></div>
+              <div style="flex:1;min-width:0;">
+                <div class="item-name">History of CS</div>
+                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">avanwinkel@molloyhs.org</div>
+              </div>
+              <span class="item-meta">Mar 12</span>
+              <span class="pill" style="background:rgba(88,166,255,0.08);color:var(--muted);border-color:var(--border)">2.3 KB</span>
+            </a>
+            <a class="item email-item" href="https://docs.google.com/document/d/1zpn46oVqcwlVJLD4O02jli0AnG6VnFM4BtLcIajJlYQ/edit" target="_blank">
+              <div class="dot" style="background:var(--teal)"></div>
+              <div style="flex:1;min-width:0;">
+                <div class="item-name">10 Computers – image description</div>
+                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">avanwinkel@molloyhs.org</div>
+              </div>
+              <span class="item-meta">Mar 12</span>
+              <span class="pill" style="background:rgba(88,166,255,0.08);color:var(--muted);border-color:var(--border)">4.5 KB</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- LARGEST FILES -->
+        <div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;">📦 Largest Files <span style="color:var(--yellow);font-size:0.6rem;font-weight:400;text-transform:none;letter-spacing:0">(Google Docs only — connector is text-search based)</span></div>
+          <div class="item-list">
+            <a class="item email-item" href="https://docs.google.com/document/d/11QwV2tAoIa6QvJV1rTJ3UFz7b1T8o64MNnIJ4dDZaio/edit" target="_blank">
+              <div class="dot" style="background:var(--red)"></div>
+              <div style="flex:1;min-width:0;">
+                <div class="item-name">AlphaPython – Project Plan</div>
+                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">alexicoo@gmail.com · Google Doc</div>
+              </div>
+              <span class="pill" style="background:rgba(248,81,73,0.1);color:var(--red);border-color:rgba(248,81,73,0.3)">439 KB</span>
+            </a>
+            <a class="item email-item" href="https://docs.google.com/document/d/1_07M-mnjd8O81q653586ofD8m0IeDqy-PHGGAqjgVXQ/edit" target="_blank">
+              <div class="dot" style="background:var(--blue)"></div>
+              <div style="flex:1;min-width:0;">
+                <div class="item-name">BLENDER MATERIALS QUICK GUIDE</div>
+                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">avanwinkel@molloyhs.org · Google Doc</div>
+              </div>
+              <span class="pill" style="background:rgba(255,166,87,0.1);color:var(--orange);border-color:rgba(255,166,87,0.3)">94 KB</span>
+            </a>
+            <a class="item email-item" href="https://docs.google.com/document/d/1hgX95pHHPY_VTR9K86Wk3vIqx8HpGDMmtAQeAUVU_d8/edit" target="_blank">
+              <div class="dot" style="background:var(--purple)"></div>
+              <div style="flex:1;min-width:0;">
+                <div class="item-name">Create Task Analysis 2025</div>
+                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">mvlach@dixonusd.org (shared) · Google Doc</div>
+              </div>
+              <span class="pill" style="background:rgba(255,166,87,0.08);color:var(--yellow);border-color:rgba(210,153,34,0.3)">89 KB</span>
+            </a>
+          </div>
+          <div style="margin-top:8px;padding:8px 10px;background:rgba(210,153,34,0.07);border:1px solid rgba(210,153,34,0.2);border-radius:7px;font-size:0.69rem;color:var(--yellow);line-height:1.5;">
+            ⚠️ Videos, PDFs, images & other binary files are not visible through this connector — it only reads text-based Google Docs. For true storage usage: <a href="https://drive.google.com/drive/quota" target="_blank" style="color:var(--blue);text-decoration:none;">drive.google.com/drive/quota →</a>
+          </div>
+        </div>
+
+      </div>
+
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+        <div class="info-row" style="flex:1;border:none;padding:0;"><span class="label">Access</span><span class="value">Search &amp; fetch (read-only)</span></div>
+        <div class="info-row" style="flex:1;border:none;padding:0;"><span class="label">Status</span><span class="value" style="color:var(--green)">Auth token valid</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ PRODUCTIVITY ══════════════════════════════════════ -->
+  <div class="section-title">Productivity</div>
+  <div class="grid">
+
+    <!-- NOTION -->
+    <div class="card" style="grid-column: span 2;">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon" style="background: rgba(255,255,255,0.08);">📓</div>
+          <div>
+            <div class="card-title">Notion — <span style="color:var(--yellow)">★ MAIN</span></div>
+            <div class="card-subtitle">Alex van Winkel · alexicoo@gmail.com · Private workspace</div>
+          </div>
+        </div>
+        <span class="badge badge-green">● CONNECTED</span>
+      </div>
+
+      <div class="stats" style="margin-bottom:16px;">
+        <div class="stat"><div class="stat-value">8</div><div class="stat-label">Top-level pages</div></div>
+        <div class="stat"><div class="stat-value">1</div><div class="stat-label">Workspace user</div></div>
+        <div class="stat"><div class="stat-value">Jarvis</div><div class="stat-label">AI Agent</div></div>
+        <div class="stat"><div class="stat-value">Apr 1</div><div class="stat-label">Last modified</div></div>
+      </div>
+
+      <div style="font-size:0.72rem;color:var(--muted);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;">📂 Workspace Structure (MAIN)</div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;">
+
+        <a class="notion-section" href="https://www.notion.so/4ae94ed9b2494aa2a88dd115ec141d0a" target="_blank">
+          <div class="notion-section-header">
+            <span class="notion-icon">🗃️</span>
+            <span class="notion-title">_General</span>
+            <span class="notion-type">database</span>
+          </div>
+          <div class="notion-desc">URL bookmarks · 2-col table (URL + Text)</div>
+        </a>
+
+        <a class="notion-section" href="https://www.notion.so/2b49af525ae280198d11db55d0516ff6" target="_blank">
+          <div class="notion-section-header">
+            <span class="notion-icon">🏫</span>
+            <span class="notion-title">FOR SCHOOL</span>
+            <span class="notion-type">page</span>
+          </div>
+          <div class="notion-desc">AI · 3D printing · 3D animations · Cybersecurity · Python · Blender · Workflows</div>
+          <div class="notion-sub">Classes Spring 2026 · Links (CS)</div>
+        </a>
+
+        <a class="notion-section" href="https://www.notion.so/2b49af525ae280bdb948de6fc95a139e" target="_blank">
+          <div class="notion-section-header">
+            <span class="notion-icon">💰</span>
+            <span class="notion-title">FINANCIAL</span>
+            <span class="notion-type">page</span>
+          </div>
+          <div class="notion-desc">Retirement · Carline Credit card debt</div>
+          <div class="notion-sub">Money owed (2 databases) · Mar 13</div>
+        </a>
+
+        <a class="notion-section" href="https://www.notion.so/84f534d93c1f45199ffa8a54fcfe63a3" target="_blank" style="border-color:rgba(251,188,4,0.3);">
+          <div class="notion-section-header">
+            <span class="notion-icon">🌏</span>
+            <span class="notion-title">Thailand</span>
+            <span class="notion-type" style="color:var(--yellow)">⟳ Apr 1</span>
+          </div>
+          <div class="notion-desc">Trip 2026: JFK→AMS→BKK (Jul 12–Aug 15)</div>
+          <div class="notion-sub">VISAS · Hotels · Hua Hin · Paying taxes · Retiring in SE Asia</div>
+        </a>
+
+        <a class="notion-section" href="https://www.notion.so/3169af525ae2806781e1eac50c1db6f2" target="_blank">
+          <div class="notion-section-header">
+            <span class="notion-icon">✅</span>
+            <span class="notion-title">TODO / Things to try</span>
+            <span class="notion-type">page</span>
+          </div>
+          <div class="notion-desc">OpenClaw · AI tools to explore</div>
+          <div class="notion-sub">Mar 21</div>
+        </a>
+
+        <a class="notion-section" href="https://www.notion.so/3199af525ae2804ea6bbff6b60c4f891" target="_blank" style="border-color:rgba(188,140,255,0.3);">
+          <div class="notion-section-header">
+            <span class="notion-icon">🤖</span>
+            <span class="notion-title">OpenClaw Incoming</span>
+            <span class="notion-type" style="color:var(--purple)">⟳ Apr 1</span>
+          </div>
+          <div class="notion-desc">Capabilities doc · Android connection · Discord setup (Mr.Claw)</div>
+          <div class="notion-sub">Weather Report · Hua Hin prices</div>
+        </a>
+
+        <a class="notion-section" href="https://www.notion.so/2b49af525ae280bda5b7ef42fb9b2646" target="_blank">
+          <div class="notion-section-header">
+            <span class="notion-icon">📦</span>
+            <span class="notion-title">MISC</span>
+            <span class="notion-type">page</span>
+          </div>
+          <div class="notion-desc">Stoicism · Training · Story: The right to defend</div>
+          <div class="notion-sub">T_IceBear · Mar 4</div>
+        </a>
+
+        <a class="notion-section" href="https://www.notion.so/3189af525ae280c89e0dfd58cdca3455" target="_blank">
+          <div class="notion-section-header">
+            <span class="notion-icon">🍃</span>
+            <span class="notion-title">Minimalist</span>
+            <span class="notion-type">page</span>
+          </div>
+          <div class="notion-desc">AI agent identity · Chat style · Behavior memories</div>
+          <div class="notion-sub">Jarvis config · Mar 3</div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- CANVA -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon" style="background: rgba(0,198,172,0.12);">🎨</div>
+          <div>
+            <div class="card-title">Canva</div>
+            <div class="card-subtitle">Design workspace</div>
+          </div>
+        </div>
+        <span class="badge badge-green">● CONNECTED</span>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-value">12</div>
+          <div class="stat-label">Designs</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">0</div>
+          <div class="stat-label">Brand Kits</div>
+        </div>
+      </div>
+      <div style="font-size:0.72rem;color:var(--muted);margin-bottom:8px;">Recent designs</div>
+      <div class="item-list">
+        <a class="item email-item" href="https://www.canva.com/d/tOBcWpjr1gfiImY" target="_blank">
+          <div class="dot" style="background:var(--teal)"></div>
+          <span class="item-name">THE SOLUTION</span>
+          <span class="item-meta">22 pages</span>
+        </a>
+        <a class="item email-item" href="https://www.canva.com/d/cCL9KPmJ0PXDn14" target="_blank">
+          <div class="dot" style="background:var(--blue)"></div>
+          <span class="item-name">Your paragraph text</span>
+          <span class="item-meta">1 page</span>
+        </a>
+        <a class="item email-item" href="https://www.canva.com/d/-AJS8sw0gzjeNsp" target="_blank">
+          <div class="dot" style="background:var(--purple)"></div>
+          <span class="item-name">Puzzle</span>
+          <span class="item-meta">1 page</span>
+        </a>
+        <a class="item email-item" href="https://www.canva.com/d/J9uX1WU6glToSO2" target="_blank">
+          <div class="dot" style="background:var(--orange)"></div>
+          <span class="item-name">3D animations club</span>
+          <span class="item-meta">1 page</span>
+        </a>
+        <a class="item email-item" href="https://www.canva.com/d/vIhzCCToJqWeH2U" target="_blank">
+          <div class="dot" style="background:var(--red)"></div>
+          <span class="item-name">Alex van Winkel</span>
+          <span class="item-meta">1 page</span>
+        </a>
+        <a class="item email-item" href="https://www.canva.com/d/BiJBy9uaHPxsDDm" target="_blank">
+          <div class="dot" style="background:var(--muted)"></div>
+          <span class="item-name">Assignment – Stanner cartoon</span>
+          <span class="item-meta">1 page</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ DEVELOPMENT ═══════════════════════════════════════ -->
+  <div class="section-title">Development &amp; Infrastructure</div>
+  <div class="grid">
+
+    <!-- NETLIFY -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon" style="background: rgba(0,173,188,0.12);">🌐</div>
+          <div>
+            <div class="card-title">Netlify</div>
+            <div class="card-subtitle">Alex van Winkel · @Alexico1969</div>
+          </div>
+        </div>
+        <span class="badge badge-green">● CONNECTED</span>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-value">43</div>
+          <div class="stat-label">Sites</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">1</div>
+          <div class="stat-label">Team</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">Personal</div>
+          <div class="stat-label">Plan</div>
+        </div>
+      </div>
+      <div class="info-row"><span class="label">Account</span><span class="value">alexico1969</span></div>
+      <div class="info-row"><span class="label">GitHub</span><span class="value">Alexico1969</span></div>
+      <div class="info-row"><span class="label">Last login</span><span class="value">Mar 24, 2026</span></div>
+      <div class="info-row"><span class="label">MFA</span><span class="value" style="color:var(--yellow)">Not enforced</span></div>
+      <div class="info-row"><span class="label">Member since</span><span class="value">Oct 19, 2021</span></div>
+      <div style="font-size:0.72rem;color:var(--muted);margin: 10px 0 6px;">Recent sites</div>
+      <div class="site-grid">
+        <span class="site-tag">cc-concepts-3</span>
+        <span class="site-tag">100-to-million</span>
+        <span class="site-tag">openclawcomctr</span>
+        <span class="site-tag">claw-command-center</span>
+        <span class="site-tag">phoneconnect</span>
+        <span class="site-tag">amsflight</span>
+        <span class="site-tag">ai-news-site</span>
+        <span class="site-tag">am-winterstories</span>
+        <span class="site-tag">bkk-tracker</span>
+        <span class="site-tag">am-notez</span>
+        <span class="site-tag">us2thailand</span>
+        <span class="site-tag">am-ai</span>
+        <span class="site-tag">topdeck2023</span>
+        <span class="site-tag">alexsongs</span>
+        <span class="site-tag">dev-steps</span>
+        <span class="site-tag">nasa-demo</span>
+        <span class="site-tag">apcsp-vocab</span>
+        <span class="site-tag">pythonmath</span>
+        <span class="site-tag">maps-search</span>
+        <span class="site-tag">+ 24 more</span>
+      </div>
+    </div>
+
+    <!-- SUPABASE -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon" style="background: rgba(62,207,142,0.12);">🗄️</div>
+          <div>
+            <div class="card-title">Supabase</div>
+            <div class="card-subtitle">Alexico1969's Org</div>
+          </div>
+        </div>
+        <span class="badge badge-green">● CONNECTED</span>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-value">1</div>
+          <div class="stat-label">Projects</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">1</div>
+          <div class="stat-label">Orgs</div>
+        </div>
+      </div>
+      <div class="info-row"><span class="label">Organization</span><span class="value">Alexico1969's Org</span></div>
+      <div class="info-row"><span class="label">Org slug</span><span class="value">outstanding-fuchsia-duck</span></div>
+      <div style="font-size:0.72rem;color:var(--muted);margin: 10px 0 6px;">Projects</div>
+      <div class="item-list">
+        <div class="item">
+          <div class="dot" style="background:var(--yellow)"></div>
+          <span class="item-name">test-project</span>
+          <span class="item-meta">us-east-1</span>
+          <span class="badge badge-yellow" style="font-size:0.6rem;padding:2px 6px">INACTIVE</span>
+        </div>
+      </div>
+      <div class="info-row" style="margin-top:10px"><span class="label">Created</span><span class="value">Apr 14, 2021</span></div>
+      <div class="info-row"><span class="label">DB host</span><span class="value" style="font-size:0.7rem">db.dttfqkikzhanlpktlpnf.supabase.co</span></div>
+    </div>
+
+    <!-- POSTMAN -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon" style="background: rgba(255,108,55,0.12);">📮</div>
+          <div>
+            <div class="card-title">Postman</div>
+            <div class="card-subtitle">@Alexicoo · ID 3032388</div>
+          </div>
+        </div>
+        <span class="badge badge-green">● CONNECTED</span>
+      </div>
+      <div class="info-row"><span class="label">Email</span><span class="value">alexicoo@gmail.com</span></div>
+      <div class="info-row"><span class="label">Email verified</span><span class="value" style="color:var(--green)">Yes</span></div>
+      <div class="info-row"><span class="label">Workspaces</span><span class="value">0 (personal plan)</span></div>
+      <div class="info-row"><span class="label">Visibility</span><span class="value">Private</span></div>
+      <div style="font-size:0.72rem;color:var(--muted);margin: 10px 0 6px;">Usage limits</div>
+      <div class="item-list">
+        <div class="item">
+          <div class="dot" style="background:var(--blue)"></div>
+          <span class="item-name">API calls</span>
+          <span class="item-meta">0 / 10,000</span>
+        </div>
+        <div class="item">
+          <div class="dot" style="background:var(--purple)"></div>
+          <span class="item-name">Monitor request runs</span>
+          <span class="item-meta">0 / 1,000</span>
+        </div>
+        <div class="item">
+          <div class="dot" style="background:var(--green)"></div>
+          <span class="item-name">Collection runs</span>
+          <span class="item-meta">0 / ∞</span>
+        </div>
+        <div class="item">
+          <div class="dot" style="background:var(--orange)"></div>
+          <span class="item-name">Flow requests</span>
+          <span class="item-meta">0 / 25</span>
+        </div>
+        <div class="item">
+          <div class="dot" style="background:var(--teal)"></div>
+          <span class="item-name">AI millicredits</span>
+          <span class="item-meta">0 / 50</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- HUGGING FACE -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon" style="background: rgba(255,212,0,0.10);">🤗</div>
+          <div>
+            <div class="card-title">Hugging Face</div>
+            <div class="card-subtitle">@Alexicoo</div>
+          </div>
+        </div>
+        <span class="badge badge-green">● CONNECTED</span>
+      </div>
+      <div class="info-row"><span class="label">Username</span><span class="value">Alexicoo</span></div>
+      <div class="info-row"><span class="label">Models</span><span class="value">0 public</span></div>
+      <div class="info-row"><span class="label">Datasets</span><span class="value">0 public</span></div>
+      <div class="info-row"><span class="label">Spaces</span><span class="value">0 public</span></div>
+      <div class="info-row"><span class="label">Capabilities</span><span class="value">Search, docs, papers</span></div>
+      <div class="info-row"><span class="label">Hub access</span><span class="value" style="color:var(--green)">Authenticated</span></div>
+    </div>
+
+  </div>
+
+  <!-- ═══ PAYMENTS ══════════════════════════════════════════ -->
+  <div class="section-title">Payments</div>
+  <div class="grid">
+
+    <!-- STRIPE -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon" style="background: rgba(99,91,255,0.12);">💳</div>
+          <div>
+            <div class="card-title">Stripe</div>
+            <div class="card-subtitle">alexicoo.nl</div>
+          </div>
+        </div>
+        <span class="badge badge-green">● CONNECTED</span>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-value">$0.00</div>
+          <div class="stat-label">Balance</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">$0.00</div>
+          <div class="stat-label">Pending</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">0</div>
+          <div class="stat-label">Customers</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">0</div>
+          <div class="stat-label">Subscriptions</div>
+        </div>
+      </div>
+      <div class="info-row"><span class="label">Account ID</span><span class="value" style="font-size:0.7rem">acct_1KlMMrI13iY3Wipc</span></div>
+      <div class="info-row"><span class="label">Mode</span><span class="value" style="color:var(--green)">Live mode</span></div>
+      <div class="info-row"><span class="label">Currency</span><span class="value">USD</span></div>
+      <div class="info-row"><span class="label">Invoices</span><span class="value">0</span></div>
+      <div class="info-row"><span class="label">Disputes</span><span class="value">0</span></div>
+    </div>
+
+  </div>
+
+  <!-- ═══ AUTOMATION ════════════════════════════════════════ -->
+  <div class="section-title">Automation &amp; Tools</div>
+  <div class="grid">
+
+    <!-- SCHEDULED TASKS -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon" style="background: rgba(255,166,87,0.12);">⏰</div>
+          <div>
+            <div class="card-title">Scheduled Tasks</div>
+            <div class="card-subtitle">Claude Code cron scheduler</div>
+          </div>
+        </div>
+        <span class="badge badge-blue">● ACTIVE</span>
+      </div>
+      <div class="info-row"><span class="label">Active tasks</span><span class="value">0</span></div>
+      <div class="info-row"><span class="label">Capabilities</span><span class="value">Create, list, update tasks</span></div>
+      <div class="info-row"><span class="label">Trigger types</span><span class="value">Cron + one-time</span></div>
+      <div style="margin-top:12px;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;font-size:0.78rem;color:var(--muted);text-align:center;">
+        No scheduled tasks yet
+      </div>
+    </div>
+
+    <!-- SEMANTIC SEARCH -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon" style="background: rgba(88,166,255,0.12);">🔍</div>
+          <div>
+            <div class="card-title">Semantic Search</div>
+            <div class="card-subtitle">Vector search over content</div>
+          </div>
+        </div>
+        <span class="badge badge-blue">● ACTIVE</span>
+      </div>
+      <div class="info-row"><span class="label">Type</span><span class="value">Semantic / vector search</span></div>
+      <div class="info-row"><span class="label">Scope</span><span class="value">Workspace content</span></div>
+      <div class="info-row"><span class="label">API</span><span class="value" style="color:var(--green)">Available</span></div>
+    </div>
+
+    <!-- MCP REGISTRY -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon" style="background: rgba(188,140,255,0.12);">🔌</div>
+          <div>
+            <div class="card-title">MCP Registry</div>
+            <div class="card-subtitle">Connector discovery</div>
+          </div>
+        </div>
+        <span class="badge badge-blue">● ACTIVE</span>
+      </div>
+      <div class="info-row"><span class="label">Capabilities</span><span class="value">Search &amp; suggest connectors</span></div>
+      <div class="info-row"><span class="label">Active connectors</span><span class="value">14</span></div>
+      <div class="info-row"><span class="label">Status</span><span class="value" style="color:var(--green)">Registry online</span></div>
+    </div>
+
+    <!-- MICROSOFT DOCS -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon" style="background: rgba(0,120,212,0.12);">📘</div>
+          <div>
+            <div class="card-title">Microsoft Docs</div>
+            <div class="card-subtitle">Code samples &amp; documentation</div>
+          </div>
+        </div>
+        <span class="badge badge-blue">● ACTIVE</span>
+      </div>
+      <div class="info-row"><span class="label">Capabilities</span><span class="value">Search docs, fetch articles</span></div>
+      <div class="info-row"><span class="label">Code samples</span><span class="value">Available</span></div>
+      <div class="info-row"><span class="label">Coverage</span><span class="value">Azure, M365, .NET, GitHub</span></div>
+      <div class="info-row"><span class="label">Auth required</span><span class="value">No (public)</span></div>
+    </div>
+
+  </div>
+
+  <!-- ═══ BROWSER TOOLS ═════════════════════════════════════ -->
+  <div class="section-title">Browser &amp; Preview</div>
+  <div class="grid">
+
+    <!-- CLAUDE PREVIEW -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon" style="background: rgba(255,212,0,0.10);">👁️</div>
+          <div>
+            <div class="card-title">Claude Preview</div>
+            <div class="card-subtitle">In-tool browser preview</div>
+          </div>
+        </div>
+        <span class="badge badge-green">● ACTIVE</span>
+      </div>
+      <div class="info-row"><span class="label">Screenshots</span><span class="value" style="color:var(--green)">✓</span></div>
+      <div class="info-row"><span class="label">DOM inspection</span><span class="value" style="color:var(--green)">✓</span></div>
+      <div class="info-row"><span class="label">Console logs</span><span class="value" style="color:var(--green)">✓</span></div>
+      <div class="info-row"><span class="label">Network monitoring</span><span class="value" style="color:var(--green)">✓</span></div>
+      <div class="info-row"><span class="label">JS eval</span><span class="value" style="color:var(--green)">✓</span></div>
+      <div class="info-row"><span class="label">Click / fill / resize</span><span class="value" style="color:var(--green)">✓</span></div>
+    </div>
+
+    <!-- CLAUDE IN CHROME -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon" style="background: rgba(234,67,53,0.12);">🌍</div>
+          <div>
+            <div class="card-title">Claude in Chrome</div>
+            <div class="card-subtitle">Full browser automation</div>
+          </div>
+        </div>
+        <span class="badge badge-green">● ACTIVE</span>
+      </div>
+      <div class="info-row"><span class="label">Navigation</span><span class="value" style="color:var(--green)">✓</span></div>
+      <div class="info-row"><span class="label">JavaScript execution</span><span class="value" style="color:var(--green)">✓</span></div>
+      <div class="info-row"><span class="label">Page reading</span><span class="value" style="color:var(--green)">✓</span></div>
+      <div class="info-row"><span class="label">Network requests</span><span class="value" style="color:var(--green)">✓</span></div>
+      <div class="info-row"><span class="label">File upload</span><span class="value" style="color:var(--green)">✓</span></div>
+      <div class="info-row"><span class="label">GIF creator</span><span class="value" style="color:var(--green)">✓</span></div>
+    </div>
+
+  </div>
+
+  <!-- ═══ CONNECTION SUMMARY ════════════════════════════════ -->
+  <div class="section-title">Summary</div>
+  <div class="grid">
+    <div class="card" style="grid-column: 1 / -1;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;">
+        <div class="stat" style="text-align:center">
+          <div class="stat-value" style="color:var(--green)">14</div>
+          <div class="stat-label">Total Connections</div>
+        </div>
+        <div class="stat" style="text-align:center">
+          <div class="stat-value" style="color:var(--green)">14</div>
+          <div class="stat-label">Online</div>
+        </div>
+        <div class="stat" style="text-align:center">
+          <div class="stat-value" style="color:var(--yellow)">0</div>
+          <div class="stat-label">Warnings</div>
+        </div>
+        <div class="stat" style="text-align:center">
+          <div class="stat-value" style="color:var(--red)">0</div>
+          <div class="stat-label">Errors</div>
+        </div>
+        <div class="stat" style="text-align:center">
+          <div class="stat-value">43</div>
+          <div class="stat-label">Netlify Sites</div>
+        </div>
+        <div class="stat" style="text-align:center">
+          <div class="stat-value">73.5k</div>
+          <div class="stat-label">Gmail Messages</div>
+        </div>
+        <div class="stat" style="text-align:center">
+          <div class="stat-value">13</div>
+          <div class="stat-label">Calendars</div>
+        </div>
+        <div class="stat" style="text-align:center">
+          <div class="stat-value">12</div>
+          <div class="stat-label">Canva Designs</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="last-updated">
+    Dashboard generated live · April 1, 2026 · All data fetched in real-time via MCP connections
+  </div>
+
+  </div><!-- /page-inner -->
+  </div><!-- /page-overview -->
+
+  <!-- ═══ PAGE: PROJECTS ════════════════════════════════════════ -->
+  <div id="page-projects" class="page">
+  <div class="page-inner">
+
+  <div class="section-title">My Projects</div>
+  <div class="grid-wide">
+
+    <!-- ARTEMIS II TRACKER -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon" style="background: rgba(88,166,255,0.15);">🚀</div>
+          <div>
+            <div class="card-title">Artemis II Tracker</div>
+            <div class="card-subtitle">NASA Artemis II mission tracking dashboard</div>
+          </div>
+        </div>
+      </div>
+      <a href="https://artemis-ii-tracker.netlify.app/" target="_blank" style="display:block;margin-top:16px;padding:12px;background:var(--blue);color:white;text-align:center;border-radius:8px;text-decoration:none;font-weight:500;">Visit Project →</a>
+    </div>
+
+    <!-- ALPACA TRADING DASHBOARD -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon" style="background: rgba(63,185,80,0.15);">📈</div>
+          <div>
+            <div class="card-title">Alpaca Trading Dashboard</div>
+            <div class="card-subtitle">Stock trading interface with Alpaca API</div>
+          </div>
+        </div>
+      </div>
+      <a href="https://alpaca-trading-dashboard.netlify.app/" target="_blank" style="display:block;margin-top:16px;padding:12px;background:var(--green);color:white;text-align:center;border-radius:8px;text-decoration:none;font-weight:500;">Visit Project →</a>
+    </div>
+
+    <!-- MOLLOY CS -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon" style="background: rgba(210,153,34,0.15);">🎓</div>
+          <div>
+            <div class="card-title">Molloy CS</div>
+            <div class="card-subtitle">Computer Science resources and tools</div>
+          </div>
+        </div>
+      </div>
+      <a href="https://molloycs.org/" target="_blank" style="display:block;margin-top:16px;padding:12px;background:var(--yellow);color:black;text-align:center;border-radius:8px;text-decoration:none;font-weight:500;">Visit Project →</a>
+    </div>
+
+    <!-- US TO THAILAND -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon" style="background: rgba(248,81,73,0.15);">✈️</div>
+          <div>
+            <div class="card-title">US to Thailand</div>
+            <div class="card-subtitle">Travel planning and information site</div>
+          </div>
+        </div>
+      </div>
+      <a href="https://us2thailand.netlify.app/" target="_blank" style="display:block;margin-top:16px;padding:12px;background:var(--red);color:white;text-align:center;border-radius:8px;text-decoration:none;font-weight:500;">Visit Project →</a>
+    </div>
+
+    <!-- WEB SPEECH APP -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon" style="background: rgba(188,140,255,0.15);">🎤</div>
+          <div>
+            <div class="card-title">Web Speech App</div>
+            <div class="card-subtitle">Speech recognition and synthesis application</div>
+          </div>
+        </div>
+      </div>
+      <a href="https://web-speech-app.netlify.app/" target="_blank" style="display:block;margin-top:16px;padding:12px;background:var(--purple);color:white;text-align:center;border-radius:8px;text-decoration:none;font-weight:500;">Visit Project →</a>
+    </div>
+
+    <!-- TOP DECK 2023 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon" style="background: rgba(255,166,87,0.15);">🃏</div>
+          <div>
+            <div class="card-title">Top Deck 2023</div>
+            <div class="card-subtitle">Card game or deck management tool</div>
+          </div>
+        </div>
+      </div>
+      <a href="https://topdeck2023.netlify.app/" target="_blank" style="display:block;margin-top:16px;padding:12px;background:var(--orange);color:black;text-align:center;border-radius:8px;text-decoration:none;font-weight:500;">Visit Project →</a>
+    </div>
+
+  </div>
+
+  </div><!-- /page-inner -->
+  </div><!-- /page-projects -->
+
+  <!-- ═══ PAGE: YOUTUBE CHANNEL ════════════════════════════════ -->
+  <div id="page-youtube" class="page">
+    <div class="placeholder-page">
+      <div class="placeholder-icon">▶️</div>
+      <div class="placeholder-title">YouTube Channel</div>
+      <div class="placeholder-desc">Your YouTube channel stats, latest videos, subscriber count and analytics will appear here.</div>
+    </div>
+  </div>
+
+  <!-- ═══ PAGE: NOTES ══════════════════════════════════════════ -->
+  <div id="page-notes" class="page">
+    <div class="placeholder-page">
+      <div class="placeholder-icon">📝</div>
+      <div class="placeholder-title">Notes</div>
+      <div class="placeholder-desc">Personal notes, quick thoughts and saved snippets will live here.</div>
+    </div>
+  </div>
+
+  <!-- ═══ PAGE: SCHOOL ════════════════════════════════════════ -->
+  <div id="page-school" class="page">
+    <div class="placeholder-page">
+      <div class="placeholder-icon">🎓</div>
+      <div class="placeholder-title">School</div>
+      <div class="placeholder-desc">Assignments, schedules, grades and school-related resources will appear here.</div>
+    </div>
+  </div>
+
+  <!-- ═══ PAGE: THAILAND ═══════════════════════════════════════ -->
+  <div id="page-thailand" class="page">
+    <div class="placeholder-page">
+      <div class="placeholder-icon">🇹🇭</div>
+      <div class="placeholder-title">Thailand</div>
+      <div class="placeholder-desc">Travel plans, bookings, budget, tips and Thailand-related information will live here.</div>
+    </div>
+  </div>
+
+  <!-- ═══ PAGE: IMPORTANT INFORMATION ════════════════════════ -->
+  <div id="page-important" class="page">
+    <div class="page-inner">
+      <div id="notion-important-wrap">
+        <!-- Loaded dynamically from Notion -->
+        <div id="notion-important-loading" style="display:flex;align-items:center;gap:12px;padding:40px 0;color:var(--muted);font-size:0.9rem;">
+          <span style="font-size:1.4rem;animation:spin 1s linear infinite;display:inline-block;">⟳</span> Loading from Notion…
+        </div>
+        <div id="notion-important-error" style="display:none;padding:20px;background:rgba(248,81,73,0.08);border:1px solid rgba(248,81,73,0.25);border-radius:10px;color:var(--red);font-size:0.85rem;line-height:1.6;"></div>
+        <div id="notion-important-content" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+
+  </main><!-- /main -->
+
+</div><!-- /app-layout -->
+<script>
+  // ── PAGE NAVIGATION ────────────────────────────────────
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    document.getElementById('nav-' + id).classList.add('active');
+    const main = document.querySelector('main');
+    if (main) main.scrollTop = 0;
+    if (id === 'important') loadNotionImportant();
+  }
+
+  // ── NOTION: IMPORTANT INFORMATION ─────────────────────
+  async function loadNotionImportant() {
+    const loading = document.getElementById('notion-important-loading');
+    const error   = document.getElementById('notion-important-error');
+    const content = document.getElementById('notion-important-content');
+
+    loading.style.display = 'flex';
+    error.style.display   = 'none';
+    content.style.display = 'none';
+
+    try {
+      const res  = await fetch('/.netlify/functions/notion-page');
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'Unknown error from server.');
+      }
+
+      content.innerHTML = renderNotionPage(data);
+      loading.style.display = 'none';
+      content.style.display = 'block';
+    } catch (err) {
+      loading.style.display = 'none';
+      error.style.display   = 'block';
+      error.innerHTML = `<strong>⚠️ Could not load Notion page</strong><br>${err.message}<br><br>
+        Make sure the <code style="background:rgba(248,81,73,0.12);padding:1px 5px;border-radius:4px;">NOTION_TOKEN</code> environment variable is set in Netlify
+        and that the integration has been shared with this page.`;
+    }
+  }
+
+  // ── NOTION BLOCK RENDERER ──────────────────────────────
+  function richText(arr) {
+    if (!arr || !arr.length) return '';
+    return arr.map(t => {
+      let txt = t.plain_text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const a = t.annotations || {};
+      if (a.code)          txt = `<span class="n-code-inline">${txt}</span>`;
+      if (a.bold)          txt = `<strong class="n-bold">${txt}</strong>`;
+      if (a.italic)        txt = `<em class="n-italic">${txt}</em>`;
+      if (a.strikethrough) txt = `<span class="n-strike">${txt}</span>`;
+      if (t.href)          txt = `<a class="n-link" href="${t.href}" target="_blank">${txt}</a>`;
+      return txt;
+    }).join('');
+  }
+
+  function renderBlock(b) {
+    const type = b.type;
+    const d    = b[type] || {};
+    const rt   = d.rich_text || [];
+
+    switch (type) {
+      case 'heading_1': return `<div class="n-h1">${richText(rt)}</div>`;
+      case 'heading_2': return `<div class="n-h2">${richText(rt)}</div>`;
+      case 'heading_3': return `<div class="n-h3">${richText(rt)}</div>`;
+      case 'paragraph': return `<p class="n-p">${richText(rt)}</p>`;
+      case 'bulleted_list_item': return `<ul class="n-ul"><li>${richText(rt)}</li></ul>`;
+      case 'numbered_list_item': return `<ol class="n-ol"><li>${richText(rt)}</li></ol>`;
+      case 'to_do': {
+        const checked = d.checked ? 'checked' : '';
+        const cls = d.checked ? 'n-todo checked' : 'n-todo';
+        return `<div class="${cls}"><input type="checkbox" ${checked} disabled><span>${richText(rt)}</span></div>`;
+      }
+      case 'quote':
+        return `<div class="n-quote">${richText(rt)}</div>`;
+      case 'callout': {
+        const icon = d.icon?.emoji || d.icon?.external?.url ? `<img src="${d.icon.external.url}" style="width:1.1rem">` : '💡';
+        return `<div class="n-callout"><span class="n-callout-icon">${icon}</span><div>${richText(rt)}</div></div>`;
+      }
+      case 'code':
+        return `<pre class="n-code">${richText(rt)}</pre>`;
+      case 'divider':
+        return `<hr class="n-divider">`;
+      case 'image': {
+        const url = d.type === 'external' ? d.external?.url : d.file?.url;
+        const cap = richText(d.caption || []);
+        return url ? `<img class="n-img" src="${url}" alt="${cap || 'image'}">` : '';
+      }
+      default:
+        return '';
+    }
+  }
+
+  function mergeListItems(html) {
+    // Collapse adjacent same-type list wrappers: </ul><ul> → nothing
+    return html
+      .replace(/<\/ul>\s*<ul class="n-ul">/g, '')
+      .replace(/<\/ol>\s*<ol class="n-ol">/g, '');
+  }
+
+  function renderNotionPage(data) {
+    const date = new Date(data.last_fetched).toLocaleString('en-US', {
+      month: 'short', day: 'numeric', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+    const notionUrl = 'https://www.notion.so/3359af525ae280c78957dea10e5b627d';
+
+    let blocksHtml = (data.blocks || []).map(renderBlock).join('\n');
+    blocksHtml = mergeListItems(blocksHtml);
+
+    return `
+      <div class="notion-page-title">⭐ ${data.title}</div>
+      <div class="notion-page-meta">
+        <span>Synced from Notion · ${date}</span>
+        <span>·</span>
+        <a href="${notionUrl}" target="_blank">Open in Notion →</a>
+      </div>
+      ${blocksHtml || '<p class="n-p" style="color:var(--muted)">This page is empty.</p>'}
+    `;
+  }
+
+  // ── RESTORE DELETED DRAFTS ─────────────────────────────
+  // Restore previously deleted drafts from localStorage
+  const deleted = JSON.parse(localStorage.getItem('deletedDrafts') || '[]');
+  deleted.forEach(id => {
+    const el = document.getElementById('draft-' + id);
+    if (el) el.remove();
+  });
+  checkDraftsEmpty();
+
+  function deleteDraft(draftId, threadId, btn) {
+    if (!confirm('Open this draft in Gmail to delete it, and remove it from this dashboard?')) return;
+    // Open Gmail draft in new tab so user can delete it there
+    window.open('https://mail.google.com/mail/u/0/#drafts/' + threadId, '_blank');
+    // Animate removal from dashboard
+    const item = document.getElementById('draft-' + draftId);
+    if (item) {
+      item.classList.add('removing');
+      setTimeout(() => { item.remove(); checkDraftsEmpty(); }, 400);
+    }
+    // Persist removal in localStorage
+    const stored = JSON.parse(localStorage.getItem('deletedDrafts') || '[]');
+    if (!stored.includes(draftId)) {
+      stored.push(draftId);
+      localStorage.setItem('deletedDrafts', JSON.stringify(stored));
+    }
+  }
+
+  function checkDraftsEmpty() {
+    const list = document.getElementById('drafts-list');
+    const empty = document.getElementById('drafts-empty');
+    if (list && empty) {
+      const remaining = list.querySelectorAll('.draft-item:not(.removing)').length;
+      empty.style.display = remaining === 0 ? 'block' : 'none';
+    }
+  }
+</script>
+</body>
+</html>
