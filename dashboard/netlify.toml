@@ -1,3 +1,12 @@
+[build]
+  publish = "."
+  command = "echo 'No build required'"
+
 [[edge_functions]]
   path = "/*"
   function = "auth"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
