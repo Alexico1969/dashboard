@@ -537,7 +537,7 @@
   <h1><span class="logo">☁️</span> CloudDesk Dashboard</h1>
   <div class="header-meta">
     <strong>Alex van Winkel</strong> · alexicoo@gmail.com<br>
-    Live data · April 1, 2026
+    Live data · <span id="header-date">—</span>
   </div>
 </header>
 
@@ -591,11 +591,11 @@
         </div>
         <span class="badge badge-green">● CONNECTED</span>
       </div>
-      <div class="stats" style="margin-bottom:18px;">
-        <div class="stat"><div class="stat-value">73,494</div><div class="stat-label">Messages</div></div>
-        <div class="stat"><div class="stat-value">56,456</div><div class="stat-label">Threads</div></div>
-        <div class="stat"><div class="stat-value">201</div><div class="stat-label">In Inbox</div></div>
-        <div class="stat"><div class="stat-value">43</div><div class="stat-label">User Labels</div></div>
+      <div id="gmail-stats" class="stats" style="margin-bottom:18px;">
+        <div class="stat"><div class="stat-value" id="gmail-stat-messages">—</div><div class="stat-label">Messages</div></div>
+        <div class="stat"><div class="stat-value" id="gmail-stat-threads">—</div><div class="stat-label">Threads</div></div>
+        <div class="stat"><div class="stat-value" id="gmail-stat-inbox">—</div><div class="stat-label">In Inbox</div></div>
+        <div class="stat"><div class="stat-value" id="gmail-stat-labels">—</div><div class="stat-label">User Labels</div></div>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
@@ -603,52 +603,8 @@
         <!-- INBOX -->
         <div>
           <div style="font-size:0.72rem;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;">📥 Recent Inbox</div>
-          <div class="item-list">
-            <a class="item email-item" href="https://mail.google.com/mail/u/0/#inbox/19d49f96f0c56592" target="_blank">
-              <div class="dot" style="background:var(--blue)"></div>
-              <div style="flex:1;min-width:0;">
-                <div class="item-name">Get ready for the first human moon mission since 1972</div>
-                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">CNN Science – Countdown</div>
-              </div>
-              <span class="item-meta">16:56</span>
-              <span class="pill" style="background:rgba(88,166,255,0.08);color:var(--blue);border-color:rgba(88,166,255,0.2)">Updates</span>
-            </a>
-            <a class="item email-item" href="https://mail.google.com/mail/u/0/#inbox/19d49b6cf5cf93a9" target="_blank">
-              <div class="dot" style="background:var(--green)"></div>
-              <div style="flex:1;min-width:0;">
-                <div class="item-name">Re: 🌏 Southeast Asia Retirement Guide</div>
-                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">carline charles</div>
-              </div>
-              <span class="item-meta">15:43</span>
-              <span class="pill" style="background:rgba(63,185,80,0.08);color:var(--green);border-color:rgba(63,185,80,0.2)">Personal</span>
-            </a>
-            <a class="item email-item" href="https://mail.google.com/mail/u/0/#inbox/19d4999578676d10" target="_blank">
-              <div class="dot" style="background:var(--orange)"></div>
-              <div style="flex:1;min-width:0;">
-                <div class="item-name">Catch the Beat, Catch the Deals 🎶</div>
-                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">SHEIN</div>
-              </div>
-              <span class="item-meta">15:11</span>
-              <span class="pill" style="background:rgba(255,166,87,0.08);color:var(--orange);border-color:rgba(255,166,87,0.2)">Promo</span>
-            </a>
-            <a class="item email-item" href="https://mail.google.com/mail/u/0/#inbox/19d489abfd33763b" target="_blank">
-              <div class="dot" style="background:var(--purple)"></div>
-              <div style="flex:1;min-width:0;">
-                <div class="item-name">Claude Code leaks 🤖, inside DeepMind 🧠</div>
-                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">TLDR</div>
-              </div>
-              <span class="item-meta">10:33</span>
-              <span class="pill" style="background:rgba(88,166,255,0.08);color:var(--blue);border-color:rgba(88,166,255,0.2)">Updates</span>
-            </a>
-            <a class="item email-item" href="https://mail.google.com/mail/u/0/#inbox/19d48939f21f471f" target="_blank">
-              <div class="dot" style="background:var(--yellow)"></div>
-              <div style="flex:1;min-width:0;">
-                <div class="item-name">Your Bangkok flight is now $1234.</div>
-                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">Capital One</div>
-              </div>
-              <span class="item-meta">10:25</span>
-              <span class="pill" style="background:rgba(88,166,255,0.08);color:var(--blue);border-color:rgba(88,166,255,0.2)">Updates</span>
-            </a>
+          <div id="gmail-inbox-list" class="item-list">
+            <div style="padding:12px;color:var(--muted);font-size:0.8rem;">Loading…</div>
           </div>
         </div>
 
@@ -656,45 +612,7 @@
         <div>
           <div style="font-size:0.72rem;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;">✏️ Drafts</div>
           <div class="item-list" id="drafts-list">
-            <div class="item draft-item" id="draft-r8344124667941486276" style="align-items:flex-start;flex-direction:column;gap:6px;">
-              <div style="display:flex;align-items:center;gap:8px;width:100%;">
-                <div class="dot" style="background:var(--yellow);flex-shrink:0"></div>
-                <div style="flex:1;min-width:0;">
-                  <div class="item-name">RSD</div>
-                  <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">To: carline charles · Mar 13 · 1.4 KB</div>
-                </div>
-              </div>
-              <div style="display:flex;gap:6px;padding-left:16px;width:100%;">
-                <a href="https://mail.google.com/mail/u/0/#drafts/19ce80404a2cd2c0" target="_blank" class="draft-btn draft-btn-open">Open</a>
-                <button class="draft-btn draft-btn-delete" onclick="deleteDraft('r8344124667941486276','19ce80404a2cd2c0',this)">🗑 Delete</button>
-              </div>
-            </div>
-            <div class="item draft-item" id="draft-r-5135755381888562226" style="align-items:flex-start;flex-direction:column;gap:6px;">
-              <div style="display:flex;align-items:center;gap:8px;width:100%;">
-                <div class="dot" style="background:var(--yellow);flex-shrink:0"></div>
-                <div style="flex:1;min-width:0;">
-                  <div class="item-name">(no subject)</div>
-                  <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">Mar 3 · 2.3 KB</div>
-                </div>
-              </div>
-              <div style="display:flex;gap:6px;padding-left:16px;width:100%;">
-                <a href="https://mail.google.com/mail/u/0/#drafts/19cb407a0aa54775" target="_blank" class="draft-btn draft-btn-open">Open</a>
-                <button class="draft-btn draft-btn-delete" onclick="deleteDraft('r-5135755381888562226','19cb407a0aa54775',this)">🗑 Delete</button>
-              </div>
-            </div>
-            <div class="item draft-item" id="draft-r-7195300724441537743" style="align-items:flex-start;flex-direction:column;gap:6px;">
-              <div style="display:flex;align-items:center;gap:8px;width:100%;">
-                <div class="dot" style="background:var(--orange);flex-shrink:0"></div>
-                <div style="flex:1;min-width:0;">
-                  <div class="item-name">Theo in the…</div>
-                  <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">To: self · Feb 25 · <span style="color:var(--orange)">9.1 MB</span></div>
-                </div>
-              </div>
-              <div style="display:flex;gap:6px;padding-left:16px;width:100%;">
-                <a href="https://mail.google.com/mail/u/0/#drafts/19c9653d5a1c7997" target="_blank" class="draft-btn draft-btn-open">Open</a>
-                <button class="draft-btn draft-btn-delete" onclick="deleteDraft('r-7195300724441537743','19c9653d5a1c7997',this)">🗑 Delete</button>
-              </div>
-            </div>
+            <div style="padding:12px;color:var(--muted);font-size:0.8rem;">Loading…</div>
           </div>
           <div id="drafts-empty" style="display:none;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;font-size:0.78rem;color:var(--muted);text-align:center;">No drafts</div>
         </div>
@@ -704,47 +622,8 @@
       <!-- BIGGEST ATTACHMENTS -->
       <div style="margin-top:16px;">
         <div style="font-size:0.72rem;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;">📎 Biggest Attachments</div>
-        <div class="item-list">
-          <a class="item email-item" href="https://mail.google.com/mail/u/0/#inbox/19d43bf6572b29ca" target="_blank">
-            <div class="dot" style="background:var(--red)"></div>
-            <div style="flex:1;min-width:0;">
-              <div class="item-name">Fw: Video from Senior vs. Faculty Basketball Game</div>
-              <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">avanwinkel@molloyhs.org · Mar 31</div>
-            </div>
-            <span class="pill" style="background:rgba(248,81,73,0.08);color:var(--red);border-color:rgba(248,81,73,0.2)">19.7 MB</span>
-          </a>
-          <a class="item email-item" href="https://mail.google.com/mail/u/0/#sent/19cbf7c1d65581e3" target="_blank">
-            <div class="dot" style="background:var(--orange)"></div>
-            <div style="flex:1;min-width:0;">
-              <div class="item-name">Group picture</div>
-              <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">To: avanwinkel@molloyhs.org · Mar 5</div>
-            </div>
-            <span class="pill" style="background:rgba(255,166,87,0.08);color:var(--orange);border-color:rgba(255,166,87,0.2)">17.1 MB</span>
-          </a>
-          <a class="item email-item" href="https://mail.google.com/mail/u/0/#inbox/19d46142215bd6a3" target="_blank">
-            <div class="dot" style="background:var(--yellow)"></div>
-            <div style="flex:1;min-width:0;">
-              <div class="item-name">Details for the NJx Hackathon on April 11th and 12th</div>
-              <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">Christopher Gittings · Mar 31</div>
-            </div>
-            <span class="pill" style="background:rgba(210,153,34,0.08);color:var(--yellow);border-color:rgba(210,153,34,0.2)">16.8 MB</span>
-          </a>
-          <a class="item email-item" href="https://mail.google.com/mail/u/0/#inbox/19d08f7ff5386f30" target="_blank">
-            <div class="dot" style="background:var(--blue)"></div>
-            <div style="flex:1;min-width:0;">
-              <div class="item-name">Volunteer Newsletter - March 2026</div>
-              <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">GKTW Volunteer Services · Mar 20</div>
-            </div>
-            <span class="pill" style="background:rgba(88,166,255,0.08);color:var(--blue);border-color:rgba(88,166,255,0.2)">9.1 MB</span>
-          </a>
-          <a class="item email-item" href="https://mail.google.com/mail/u/0/#sent/19d1255f3d0e27f9" target="_blank">
-            <div class="dot" style="background:var(--purple)"></div>
-            <div style="flex:1;min-width:0;">
-              <div class="item-name">Teaching AP Cybersecurity next school year</div>
-              <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">To: Kellep Charles · Mar 21</div>
-            </div>
-            <span class="pill" style="background:rgba(188,140,255,0.08);color:var(--purple);border-color:rgba(188,140,255,0.2)">8.3 MB</span>
-          </a>
+        <div id="gmail-attachments-list" class="item-list">
+          <div style="padding:12px;color:var(--muted);font-size:0.8rem;">Loading…</div>
         </div>
       </div>
 
@@ -762,56 +641,17 @@
         </div>
         <span class="badge badge-green">● CONNECTED</span>
       </div>
-      <div class="stats">
-        <div class="stat">
-          <div class="stat-value">13</div>
-          <div class="stat-label">Calendars</div>
-        </div>
-        <div class="stat">
-          <div class="stat-value">8</div>
-          <div class="stat-label">Upcoming</div>
-        </div>
+      <div id="cal-stats" class="stats">
+        <div class="stat"><div class="stat-value" id="cal-stat-count">—</div><div class="stat-label">Calendars</div></div>
+        <div class="stat"><div class="stat-value" id="cal-stat-upcoming">—</div><div class="stat-label">Upcoming</div></div>
       </div>
       <div style="font-size:0.72rem;color:var(--muted);margin-bottom:8px;">Next 2 weeks</div>
-      <a class="event" href="https://www.google.com/calendar/event?eid=NGxmdm5wMG4wZW84OG1ycHZtaHA4bmh1bmMgYWxleGljb29AbQ&ctz=America/New_York" target="_blank">
-        <div class="event-date"><div class="event-day">2</div><div class="event-mon">Apr</div></div>
-        <div><div class="event-title">Check out: FRUIT TREE on Grand Ave.</div><div class="event-time">12:00 – 13:00 · Baldwin, NY</div></div>
-      </a>
-      <a class="event" href="https://www.google.com/calendar/event?eid=Y3BoajRvcHA2b28zOGJiNTc0cWphYjlrNjRybWFiYjI2bGg2NmI5aTYxZ2phZTltNnBpbThvaG5jZyBhbGV4aWNvb0Bt&ctz=America/New_York" target="_blank">
-        <div class="event-date"><div class="event-day">4</div><div class="event-mon">Apr</div></div>
-        <div><div class="event-title">Cancel Video creation tool</div><div class="event-time">12:00 – 13:00</div></div>
-      </a>
-      <a class="event" href="https://www.google.com/calendar/event?eid=NmZwYTRvbGd1bHYxNjNucmw5OWY2ZWtzOHAgYWxleGljb29AbQ&ctz=America/New_York" target="_blank">
-        <div class="event-date"><div class="event-day">4</div><div class="event-mon">Apr</div></div>
-        <div><div class="event-title">Cancel Coursera (alexicoo.nl)</div><div class="event-time">13:00 – 13:15</div></div>
-      </a>
-      <a class="event" href="https://www.google.com/calendar/event?eid=Y2txajRvcjI3NHE2OGJiMTY0b2o2YjlrNmdvbTZiOW9jaGhqZWJiMzZzcWo0Y2o1YzhxbTRjMzY3NF8yMDI2MDQwNFQxNTAwMDBaIGFsZXhpY29vQG0&ctz=America/New_York" target="_blank">
-        <div class="event-date"><div class="event-day">5</div><div class="event-mon">Apr</div></div>
-        <div><div class="event-title">SKYPE met moeder</div><div class="event-time">11:00 – 12:00 · recurring</div></div>
-      </a>
-      <a class="event" href="https://www.google.com/calendar/event?eid=M2ZxbTZwNTcyN2wwNDhtbmZhZGhrMDI4b2UgYWxleGljb29AbQ&ctz=America/New_York" target="_blank">
-        <div class="event-date"><div class="event-day">6</div><div class="event-mon">Apr</div></div>
-        <div><div class="event-title">Perillo – Tune-up</div><div class="event-time">12:00 – 15:00</div></div>
-      </a>
-      <a class="event" href="https://www.google.com/calendar/event?eid=Nm9wM2FwOWs3NHJtY2I5bzZzcmo0YjlrNjBxNjRiYjI2OHFtY2I5azcwcW00Y3IzNjFoNmFkajVjZyBhbGV4aWNvb0Bt&ctz=America/New_York" target="_blank">
-        <div class="event-date"><div class="event-day">6</div><div class="event-mon">Apr</div></div>
-        <div><div class="event-title">Promo for elective classes</div><div class="event-time">16:00 – 17:00</div></div>
-      </a>
+      <div id="cal-events-list">
+        <div style="padding:12px;color:var(--muted);font-size:0.8rem;">Loading…</div>
+      </div>
       <div style="font-size:0.72rem;color:var(--muted);margin-top:10px;margin-bottom:5px;">Calendars</div>
-      <div class="pills">
-        <span class="pill" style="color:var(--blue)">alexicoo@gmail.com ★</span>
-        <span class="pill">CodeWizards</span>
-        <span class="pill">Best Family</span>
-        <span class="pill">Personal</span>
-        <span class="pill">Gezin</span>
-        <span class="pill">Family</span>
-        <span class="pill">AP CSP 2024-2025</span>
-        <span class="pill">School 23 vakanties</span>
-        <span class="pill">OpenClaw managed</span>
-        <span class="pill">Feestdagen NL</span>
-        <span class="pill">Twitch dates</span>
-        <span class="pill">LPN prep</span>
-        <span class="pill">phoenixhealer2000</span>
+      <div id="cal-calendars-list" class="pills">
+        <span class="pill" style="color:var(--muted)">Loading…</span>
       </div>
     </div>
 
@@ -833,83 +673,16 @@
         <!-- RECENTLY MODIFIED -->
         <div>
           <div style="font-size:0.72rem;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;">🕐 Recently Modified</div>
-          <div class="item-list">
-            <a class="item email-item" href="https://docs.google.com/document/d/1_07M-mnjd8O81q653586ofD8m0IeDqy-PHGGAqjgVXQ/edit" target="_blank">
-              <div class="dot" style="background:var(--blue)"></div>
-              <div style="flex:1;min-width:0;">
-                <div class="item-name">BLENDER MATERIALS QUICK GUIDE</div>
-                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">avanwinkel@molloyhs.org</div>
-              </div>
-              <span class="item-meta">Mar 22</span>
-              <span class="pill" style="background:rgba(88,166,255,0.08);color:var(--blue);border-color:rgba(88,166,255,0.2)">94 KB</span>
-            </a>
-            <a class="item email-item" href="https://docs.google.com/document/d/1hgX95pHHPY_VTR9K86Wk3vIqx8HpGDMmtAQeAUVU_d8/edit" target="_blank">
-              <div class="dot" style="background:var(--purple)"></div>
-              <div style="flex:1;min-width:0;">
-                <div class="item-name">Create Task Analysis 2025</div>
-                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">mvlach@dixonusd.org (shared)</div>
-              </div>
-              <span class="item-meta">Mar 18</span>
-              <span class="pill" style="background:rgba(88,166,255,0.08);color:var(--blue);border-color:rgba(88,166,255,0.2)">89 KB</span>
-            </a>
-            <a class="item email-item" href="https://docs.google.com/document/d/1Tk7H4IO64dGCdP54ZS69ZQWMB80Pc6IbaxgGYDyIM10/edit" target="_blank">
-              <div class="dot" style="background:var(--green)"></div>
-              <div style="flex:1;min-width:0;">
-                <div class="item-name">Exit Slip 4</div>
-                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">dbarbery@molloyhs.org (shared)</div>
-              </div>
-              <span class="item-meta">Mar 13</span>
-              <span class="pill" style="background:rgba(88,166,255,0.08);color:var(--muted);border-color:var(--border)">1 KB</span>
-            </a>
-            <a class="item email-item" href="https://docs.google.com/document/d/1BRiJRic9mbayH3uGyoUPbnagy1SBRkkUJAVkRHE1jHA/edit" target="_blank">
-              <div class="dot" style="background:var(--orange)"></div>
-              <div style="flex:1;min-width:0;">
-                <div class="item-name">History of CS</div>
-                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">avanwinkel@molloyhs.org</div>
-              </div>
-              <span class="item-meta">Mar 12</span>
-              <span class="pill" style="background:rgba(88,166,255,0.08);color:var(--muted);border-color:var(--border)">2.3 KB</span>
-            </a>
-            <a class="item email-item" href="https://docs.google.com/document/d/1zpn46oVqcwlVJLD4O02jli0AnG6VnFM4BtLcIajJlYQ/edit" target="_blank">
-              <div class="dot" style="background:var(--teal)"></div>
-              <div style="flex:1;min-width:0;">
-                <div class="item-name">10 Computers – image description</div>
-                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">avanwinkel@molloyhs.org</div>
-              </div>
-              <span class="item-meta">Mar 12</span>
-              <span class="pill" style="background:rgba(88,166,255,0.08);color:var(--muted);border-color:var(--border)">4.5 KB</span>
-            </a>
+          <div id="drive-recent-list" class="item-list">
+            <div style="padding:12px;color:var(--muted);font-size:0.8rem;">Loading…</div>
           </div>
         </div>
 
         <!-- LARGEST FILES -->
         <div>
           <div style="font-size:0.72rem;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;">📦 Largest Files <span style="color:var(--yellow);font-size:0.6rem;font-weight:400;text-transform:none;letter-spacing:0">(Google Docs only — connector is text-search based)</span></div>
-          <div class="item-list">
-            <a class="item email-item" href="https://docs.google.com/document/d/11QwV2tAoIa6QvJV1rTJ3UFz7b1T8o64MNnIJ4dDZaio/edit" target="_blank">
-              <div class="dot" style="background:var(--red)"></div>
-              <div style="flex:1;min-width:0;">
-                <div class="item-name">AlphaPython – Project Plan</div>
-                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">alexicoo@gmail.com · Google Doc</div>
-              </div>
-              <span class="pill" style="background:rgba(248,81,73,0.1);color:var(--red);border-color:rgba(248,81,73,0.3)">439 KB</span>
-            </a>
-            <a class="item email-item" href="https://docs.google.com/document/d/1_07M-mnjd8O81q653586ofD8m0IeDqy-PHGGAqjgVXQ/edit" target="_blank">
-              <div class="dot" style="background:var(--blue)"></div>
-              <div style="flex:1;min-width:0;">
-                <div class="item-name">BLENDER MATERIALS QUICK GUIDE</div>
-                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">avanwinkel@molloyhs.org · Google Doc</div>
-              </div>
-              <span class="pill" style="background:rgba(255,166,87,0.1);color:var(--orange);border-color:rgba(255,166,87,0.3)">94 KB</span>
-            </a>
-            <a class="item email-item" href="https://docs.google.com/document/d/1hgX95pHHPY_VTR9K86Wk3vIqx8HpGDMmtAQeAUVU_d8/edit" target="_blank">
-              <div class="dot" style="background:var(--purple)"></div>
-              <div style="flex:1;min-width:0;">
-                <div class="item-name">Create Task Analysis 2025</div>
-                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">mvlach@dixonusd.org (shared) · Google Doc</div>
-              </div>
-              <span class="pill" style="background:rgba(255,166,87,0.08);color:var(--yellow);border-color:rgba(210,153,34,0.3)">89 KB</span>
-            </a>
+          <div id="drive-large-list" class="item-list">
+            <div style="padding:12px;color:var(--muted);font-size:0.8rem;">Loading…</div>
           </div>
           <div style="margin-top:8px;padding:8px 10px;background:rgba(210,153,34,0.07);border:1px solid rgba(210,153,34,0.2);border-radius:7px;font-size:0.69rem;color:var(--yellow);line-height:1.5;">
             ⚠️ Videos, PDFs, images & other binary files are not visible through this connector — it only reads text-based Google Docs. For true storage usage: <a href="https://drive.google.com/drive/quota" target="_blank" style="color:var(--blue);text-decoration:none;">drive.google.com/drive/quota →</a>
@@ -1625,6 +1398,226 @@
 
 </div><!-- /app-layout -->
 <script>
+  // ── COLOUR HELPERS ─────────────────────────────────────
+  const COLORS = {
+    blue:   { dot: 'var(--blue)',   pill: 'rgba(88,166,255,0.08)',   text: 'var(--blue)',   border: 'rgba(88,166,255,0.2)'   },
+    green:  { dot: 'var(--green)',  pill: 'rgba(63,185,80,0.08)',    text: 'var(--green)',  border: 'rgba(63,185,80,0.2)'    },
+    orange: { dot: 'var(--orange)', pill: 'rgba(255,166,87,0.08)',   text: 'var(--orange)', border: 'rgba(255,166,87,0.2)'   },
+    purple: { dot: 'var(--purple)', pill: 'rgba(188,140,255,0.08)',  text: 'var(--purple)', border: 'rgba(188,140,255,0.2)'  },
+    yellow: { dot: 'var(--yellow)', pill: 'rgba(210,153,34,0.08)',   text: 'var(--yellow)', border: 'rgba(210,153,34,0.2)'   },
+    red:    { dot: 'var(--red)',    pill: 'rgba(248,81,73,0.08)',    text: 'var(--red)',    border: 'rgba(248,81,73,0.2)'    },
+    teal:   { dot: 'var(--teal)',   pill: 'rgba(57,211,83,0.08)',    text: 'var(--teal)',   border: 'rgba(57,211,83,0.2)'    },
+    muted:  { dot: 'var(--muted)',  pill: 'rgba(139,148,158,0.08)', text: 'var(--muted)', border: 'var(--border)'           },
+  };
+  const DOT_CYCLE = ['blue','green','orange','purple','yellow','teal'];
+
+  function pillHtml(name, colorKey) {
+    const c = COLORS[colorKey] || COLORS.muted;
+    return `<span class="pill" style="background:${c.pill};color:${c.text};border-color:${c.border}">${esc(name)}</span>`;
+  }
+  function dotHtml(colorKey) {
+    const c = COLORS[colorKey] || COLORS.muted;
+    return `<div class="dot" style="background:${c.dot}"></div>`;
+  }
+  function esc(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function fmtSize(bytes) {
+    if (!bytes) return null;
+    const b = parseInt(bytes, 10);
+    if (isNaN(b) || b === 0) return null;
+    if (b >= 1024*1024) return (b/(1024*1024)).toFixed(1) + ' MB';
+    if (b >= 1024)       return Math.round(b/1024) + ' KB';
+    return b + ' B';
+  }
+
+  // ── GMAIL ──────────────────────────────────────────────
+  async function loadGmailData() {
+    try {
+      const res  = await fetch('/.netlify/functions/google-gmail?nocache=' + Date.now(), { cache: 'no-store' });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      // Stats
+      const { messagesTotal, threadsTotal, inboxCount, userLabelCount } = data.stats;
+      document.getElementById('gmail-stat-messages').textContent = messagesTotal?.toLocaleString() ?? '—';
+      document.getElementById('gmail-stat-threads').textContent  = threadsTotal?.toLocaleString()  ?? '—';
+      document.getElementById('gmail-stat-inbox').textContent    = inboxCount?.toLocaleString()    ?? '—';
+      document.getElementById('gmail-stat-labels').textContent   = userLabelCount ?? '—';
+
+      // Inbox
+      const inboxEl = document.getElementById('gmail-inbox-list');
+      if (data.inbox?.length) {
+        inboxEl.innerHTML = data.inbox.map((m, i) => {
+          const colorKey = m.badge?.color || DOT_CYCLE[i % DOT_CYCLE.length];
+          const folder   = m.unread ? 'inbox' : 'inbox';
+          const url = `https://mail.google.com/mail/u/0/#${folder}/${m.id}`;
+          const badge = m.badge ? pillHtml(m.badge.name, m.badge.color) : '';
+          return `
+            <a class="item email-item" href="${esc(url)}" target="_blank">
+              ${dotHtml(colorKey)}
+              <div style="flex:1;min-width:0;">
+                <div class="item-name">${esc(m.subject)}</div>
+                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">${esc(m.from)}</div>
+              </div>
+              <span class="item-meta">${esc(m.date)}</span>
+              ${badge}
+            </a>`;
+        }).join('');
+      } else {
+        inboxEl.innerHTML = '<div style="padding:12px;color:var(--muted);font-size:0.8rem;">No messages</div>';
+      }
+
+      // Drafts — rendered dynamically then filtered by localStorage
+      const draftListEl = document.getElementById('drafts-list');
+      const deletedDraftIds = JSON.parse(localStorage.getItem('deletedDrafts') || '[]');
+      const visibleDrafts = (data.drafts || []).filter(d => !deletedDraftIds.includes(d.draftId));
+      if (visibleDrafts.length) {
+        draftListEl.innerHTML = visibleDrafts.map(d => {
+          const sizeStr = d.size ? fmtSize(d.size) : '';
+          const meta = [d.to ? 'To: ' + d.to : '', d.date, sizeStr].filter(Boolean).join(' · ');
+          const dotColor = d.size > 5*1024*1024 ? 'orange' : 'yellow';
+          const threadUrl = `https://mail.google.com/mail/u/0/#drafts/${d.threadId}`;
+          return `
+            <div class="item draft-item" id="draft-${esc(d.draftId)}" style="align-items:flex-start;flex-direction:column;gap:6px;">
+              <div style="display:flex;align-items:center;gap:8px;width:100%;">
+                <div class="dot" style="background:var(--${dotColor});flex-shrink:0"></div>
+                <div style="flex:1;min-width:0;">
+                  <div class="item-name">${esc(d.subject)}</div>
+                  <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">${esc(meta)}</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:6px;padding-left:16px;width:100%;">
+                <a href="${esc(threadUrl)}" target="_blank" class="draft-btn draft-btn-open">Open</a>
+                <button class="draft-btn draft-btn-delete" onclick="deleteDraft('${esc(d.draftId)}','${esc(d.threadId)}',this)">🗑 Delete</button>
+              </div>
+            </div>`;
+        }).join('');
+      } else {
+        draftListEl.innerHTML = '';
+      }
+      checkDraftsEmpty();
+
+      // Biggest attachments
+      const attachEl = document.getElementById('gmail-attachments-list');
+      const attachColors = ['red','orange','yellow','blue','purple'];
+      if (data.attachments?.length) {
+        attachEl.innerHTML = data.attachments.map((a, i) => {
+          const colorKey = attachColors[i] || 'muted';
+          const folder   = a.folder === 'sent' ? 'sent' : 'inbox';
+          const url = `https://mail.google.com/mail/u/0/#${folder}/${a.id}`;
+          const sizeStr = fmtSize(a.attachmentSize) || '?';
+          const c = COLORS[colorKey];
+          return `
+            <a class="item email-item" href="${esc(url)}" target="_blank">
+              ${dotHtml(colorKey)}
+              <div style="flex:1;min-width:0;">
+                <div class="item-name">${esc(a.subject)}</div>
+                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">${esc(a.from)} · ${esc(a.date)}</div>
+              </div>
+              <span class="pill" style="background:${c.pill};color:${c.text};border-color:${c.border}">${esc(sizeStr)}</span>
+            </a>`;
+        }).join('');
+      } else {
+        attachEl.innerHTML = '<div style="padding:12px;color:var(--muted);font-size:0.8rem;">No large attachments found</div>';
+      }
+    } catch (err) {
+      const errHtml = `<div style="padding:10px;color:var(--red);font-size:0.78rem;">⚠️ ${esc(err.message)}</div>`;
+      ['gmail-inbox-list','drafts-list','gmail-attachments-list'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = errHtml;
+      });
+      console.error('Gmail load error:', err);
+    }
+  }
+
+  // ── GOOGLE CALENDAR ────────────────────────────────────
+  async function loadCalendarData() {
+    try {
+      const res  = await fetch('/.netlify/functions/google-calendar?nocache=' + Date.now(), { cache: 'no-store' });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      document.getElementById('cal-stat-count').textContent    = data.calendarCount ?? '—';
+      document.getElementById('cal-stat-upcoming').textContent = data.upcomingCount  ?? '—';
+
+      const eventsEl = document.getElementById('cal-events-list');
+      if (data.events?.length) {
+        eventsEl.innerHTML = data.events.map(e => {
+          const timeLabel = [e.time, e.recurring ? 'recurring' : ''].filter(Boolean).join(' · ');
+          return `
+            <a class="event" href="${esc(e.htmlLink)}" target="_blank">
+              <div class="event-date"><div class="event-day">${esc(String(e.day))}</div><div class="event-mon">${esc(e.mon)}</div></div>
+              <div><div class="event-title">${esc(e.title)}</div><div class="event-time">${esc(timeLabel)}</div></div>
+            </a>`;
+        }).join('');
+      } else {
+        eventsEl.innerHTML = '<div style="padding:12px;color:var(--muted);font-size:0.8rem;">No upcoming events in the next 2 weeks</div>';
+      }
+
+      const calListEl = document.getElementById('cal-calendars-list');
+      if (data.calendarNames?.length) {
+        calListEl.innerHTML = data.calendarNames.map(c =>
+          c.primary
+            ? `<span class="pill" style="color:var(--blue)">${esc(c.name)} ★</span>`
+            : `<span class="pill">${esc(c.name)}</span>`
+        ).join('');
+      } else {
+        calListEl.innerHTML = '';
+      }
+    } catch (err) {
+      ['cal-events-list','cal-calendars-list'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = `<div style="padding:10px;color:var(--red);font-size:0.78rem;">⚠️ ${esc(err.message)}</div>`;
+      });
+      console.error('Calendar load error:', err);
+    }
+  }
+
+  // ── GOOGLE DRIVE ───────────────────────────────────────
+  async function loadDriveData() {
+    try {
+      const res  = await fetch('/.netlify/functions/google-drive?nocache=' + Date.now(), { cache: 'no-store' });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      function driveFileHtml(f, colorKey) {
+        const label = [f.owner, f.mimeLabel].filter(Boolean).join(' · ');
+        return `
+          <a class="item email-item" href="${esc(f.url)}" target="_blank">
+            ${dotHtml(colorKey)}
+            <div style="flex:1;min-width:0;">
+              <div class="item-name">${esc(f.name)}</div>
+              <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">${esc(label)}</div>
+            </div>
+            <span class="item-meta">${esc(f.modifiedTime)}</span>
+            ${f.size ? pillHtml(f.size, 'muted') : ''}
+          </a>`;
+      }
+
+      const recentEl = document.getElementById('drive-recent-list');
+      if (data.recent?.length) {
+        recentEl.innerHTML = data.recent.map((f, i) => driveFileHtml(f, DOT_CYCLE[i % DOT_CYCLE.length])).join('');
+      } else {
+        recentEl.innerHTML = '<div style="padding:12px;color:var(--muted);font-size:0.8rem;">No recent files</div>';
+      }
+
+      const largeEl = document.getElementById('drive-large-list');
+      const largeColors = ['red','orange','yellow','blue','purple'];
+      if (data.largest?.length) {
+        largeEl.innerHTML = data.largest.map((f, i) => driveFileHtml(f, largeColors[i] || 'muted')).join('');
+      } else {
+        largeEl.innerHTML = '<div style="padding:12px;color:var(--muted);font-size:0.8rem;">No files found</div>';
+      }
+    } catch (err) {
+      ['drive-recent-list','drive-large-list'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = `<div style="padding:10px;color:var(--red);font-size:0.78rem;">⚠️ ${esc(err.message)}</div>`;
+      });
+      console.error('Drive load error:', err);
+    }
+  }
+
   // ── PAGE NAVIGATION ────────────────────────────────────
   function showPage(id) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -1648,6 +1641,7 @@
 
     try {
       const res  = await fetch('/.netlify/functions/notion-page?nocache=' + Date.now(), { cache: 'no-store' });
+      const data = await res.json();
 
       if (!res.ok || data.error) {
         throw new Error(data.error || 'Unknown error from server.');
@@ -1756,7 +1750,16 @@
   }
 
   window.addEventListener('load', () => {
+    // Set header date to today
+    const headerDate = document.getElementById('header-date');
+    if (headerDate) {
+      headerDate.textContent = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    }
     updateLastUpdatedMessage();
+    // Fetch all live data in parallel
+    loadGmailData();
+    loadCalendarData();
+    loadDriveData();
     loadNotionImportant();
     setTimeout(() => {
       window.location.reload();
@@ -1774,6 +1777,13 @@
 
   // Auto-refresh the page every hour so the dashboard stays current.
   const AUTO_REFRESH_INTERVAL_MS = 60 * 60 * 1000;
+
+  function ensureFreshPageLoad() {
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('cachebust')) return;
+    url.searchParams.set('cachebust', Date.now().toString());
+    window.location.replace(url.toString());
+  }
 
   function deleteDraft(draftId, threadId, btn) {
     if (!confirm('Open this draft in Gmail to delete it, and remove it from this dashboard?')) return;
