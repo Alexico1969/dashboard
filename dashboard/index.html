@@ -339,6 +339,7 @@
       flex-shrink: 0;
     }
     .item-name { font-weight: 500; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    a.email-item .item-name { white-space: normal; overflow: visible; text-overflow: unset; line-height: 1.3; }
     .item-meta { font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
     .item-role { font-size: 0.65rem; padding: 1px 6px; border-radius: 4px; background: var(--bg2); border: 1px solid var(--border); color: var(--muted); }
 
@@ -598,7 +599,7 @@
         <div class="stat"><div class="stat-value" id="gmail-stat-labels">—</div><div class="stat-label">User Labels</div></div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;min-width:0;overflow:hidden;">
 
         <!-- INBOX -->
         <div>
