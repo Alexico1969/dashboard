@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="refresh" content="3600" />
+  <meta http-equiv="cache-control" content="no-store, no-cache, must-revalidate" />
+  <meta http-equiv="pragma" content="no-cache" />
+  <meta http-equiv="expires" content="0" />
   <title>CloudDesk — Connection Dashboard</title>
   <style>
     :root {
@@ -1750,6 +1754,14 @@
     if (el) el.remove();
   });
   checkDraftsEmpty();
+
+  // Auto-refresh the page every hour so the dashboard stays current.
+  const AUTO_REFRESH_INTERVAL_MS = 60 * 60 * 1000;
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      window.location.reload();
+    }, AUTO_REFRESH_INTERVAL_MS);
+  });
 
   function deleteDraft(draftId, threadId, btn) {
     if (!confirm('Open this draft in Gmail to delete it, and remove it from this dashboard?')) return;
