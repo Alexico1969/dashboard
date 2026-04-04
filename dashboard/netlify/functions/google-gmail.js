@@ -106,10 +106,13 @@ export const handler = async () => {
     const attachIds  = (attachList.messages || []).map(m => m.id);
     const draftIds   = (draftsData.drafts   || []).map(d => d.id).slice(0, 6);
 
+    const inboxMeta = 'format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date';
+    const draftMeta = 'format=metadata&metadataHeaders=Subject&metadataHeaders=To&metadataHeaders=Date';
+
     const [inboxMessages, attachMessages, draftMessages] = await Promise.all([
-      Promise.all(inboxIds.map(id  => gGet(token, `/messages/${id}?format=metadata&metadataHeaders=From,Subject,Date`))),
+      Promise.all(inboxIds.map(id  => gGet(token, `/messages/${id}?${inboxMeta}`))),
       Promise.all(attachIds.map(id => gGet(token, `/messages/${id}?format=full`))),
-      Promise.all(draftIds.map(id  => gGet(token, `/drafts/${id}?format=metadata&metadataHeaders=Subject,To,Date`))),
+      Promise.all(draftIds.map(id  => gGet(token, `/drafts/${id}?${draftMeta}`))),
     ]);
 
     const inbox = inboxMessages.map(m => {
@@ -166,7 +169,7 @@ export const handler = async () => {
         stats: {
           messagesTotal:  profile.messagesTotal,
           threadsTotal:   profile.threadsTotal,
-          inboxCount:     inboxLabel.messagesTotal || 0,
+          inboxCount:     inboxLabel.threadsTotal || 0,
           userLabelCount,
         },
         inbox,
