@@ -1,5 +1,6 @@
 [build]
   publish = "dashboard"
+  functions = "dashboard/netlify/functions"
   command = "echo 'No build required'"
 
 [[headers]]
